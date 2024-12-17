@@ -1,0 +1,13 @@
+/*
+    See the JupyterLab Developer Guide for useful CSS Patterns:
+
+    https://jupyterlab.readthedocs.io/en/stable/developer/css.html
+*/
+
+.jp-cellfooter .cm-merge-2pane {
+  display: grid;
+  padding: 0px;
+  /* editor | gap | editor */
+  grid-template-columns: 49% 2% 49%;
+  grid-auto-rows: minmax(18px, auto);
+}
