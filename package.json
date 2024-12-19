@@ -63,7 +63,7 @@
         "@jupyterlab/services": "^7.0.0",
         "@jupyterlab/ui-components": "^4.0.0",
         "@lumino/widgets": "^2.0.0",
-        "jupyterlab-cell-input-footer": "^0.1.2",
+        "jupyterlab-cell-input-footer": "^0.2.0",
         "nbdime": "^7.0.1"
     },
     "devDependencies": {
