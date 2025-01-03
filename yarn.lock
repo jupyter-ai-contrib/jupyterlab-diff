@@ -3727,7 +3727,7 @@ __metadata:
     eslint: ^8.36.0
     eslint-config-prettier: ^8.8.0
     eslint-plugin-prettier: ^5.0.0
-    jupyterlab-cell-input-footer: ^0.2.0
+    jupyterlab-cell-input-footer: ^0.3.0
     mkdirp: ^1.0.3
     nbdime: ^7.0.1
     npm-run-all2: ^7.0.1
@@ -3745,13 +3745,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"jupyterlab-cell-input-footer@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "jupyterlab-cell-input-footer@npm:0.2.0"
+"jupyterlab-cell-input-footer@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "jupyterlab-cell-input-footer@npm:0.3.0"
   dependencies:
     "@jupyterlab/services": ^7.0.0
     "@lumino/coreutils": ^2.1.2
-  checksum: b298f6ba525668ce18c25c1e1bd5c1f515d2c76f9611092b88e1ae2769e2966784455c4d7e80f10061a8482d8c938264af15436faf0234bada101fa0a42d62ef
+  checksum: 88e8a420022a9228a09271f7b7e5ddc15f2bab9f9cf4e11541364a4060d8907ebdee2174efe0ecbbbdfa56d649fda25380e7a0f9d6dbe4d3486b3c0ab2e55a4c
   languageName: node
   linkType: hard
 
