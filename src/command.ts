@@ -28,10 +28,12 @@ export function showCellDiff(
   data: ShowDiff.ICommandArgs,
   cellFooterTracker: ICellFooterTracker
 ) {
-  let diff = createPatchStringDiffModel(data['original_source'], data['diff']);
+  const diff = createPatchStringDiffModel(
+    data['original_source'],
+    data['diff']
+  );
 
-  let mergeView: MergeView;
-  mergeView = new MergeView({ remote: diff });
+  const mergeView = new MergeView({ remote: diff });
   //
   mergeView.addClass('jp-cell-diff');
   // Add the classes below to pick up the styling from nbdime.
@@ -39,11 +41,13 @@ export function showCellDiff(
   mergeView.addClass('jp-Notebook-diff');
   mergeView.hide();
 
-  let footer = cellFooterTracker.getFooter(data.cell_id);
+  const footer = cellFooterTracker.getFooter(data.cell_id);
   // Try removing any old widget that exists.
   try {
     footer?.removeWidget('jp-cell-diff');
-  } catch {}
+  } finally {
+    // Do Nothing
+  }
 
   footer?.addWidget(mergeView);
 
@@ -80,8 +84,8 @@ export async function fetchDiff(
  */
 export function showCellDiffCommand(cellFooterTracker: ICellFooterTracker) {
   return (args: any) => {
-    let data: ShowDiff.ICommandArgs = args as any;
-    let cellId = data['cell_id'];
+    const data: ShowDiff.ICommandArgs = args as any;
+    const cellId = data['cell_id'];
     if (cellId) {
       if (data && data['original_source'] && data['diff']) {
         showCellDiff(data, cellFooterTracker);
