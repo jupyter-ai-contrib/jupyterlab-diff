@@ -42,9 +42,11 @@ export function showCellDiff(
   mergeView.hide();
 
   const footer = cellFooterTracker.getFooter(data.cell_id);
-  // Try removing any old widget that exists.
+
+  // Try removing any old widget, if it exists.
   try {
     footer?.removeWidget('jp-cell-diff');
+    footer?.removeToolbarItem('compare');
   } finally {
     // Do Nothing
   }
