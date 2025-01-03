@@ -3,13 +3,9 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
-import {
-  showCellDiffCommand
-} from './command';
+import { showCellDiffCommand } from './command';
 
-import { 
-  ICellFooterTracker
-} from 'jupyterlab-cell-input-footer';
+import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
 
 /**
  * A JupyterLab plugin providing a command for displaying a diff below a cell.
@@ -19,18 +15,15 @@ const showDiff: JupyterFrontEndPlugin<void> = {
   requires: [ICellFooterTracker],
   autoStart: true,
   activate: async (
-    app: JupyterFrontEnd, 
-    cellFooterTracker: ICellFooterTracker,
+    app: JupyterFrontEnd,
+    cellFooterTracker: ICellFooterTracker
   ) => {
-    console.log("Jupyterlab extension - show cell diff.")
+    console.log('Jupyterlab extension - show cell diff.');
     await app.serviceManager.ready;
 
-    app.commands.addCommand(
-      'show-diff', 
-      {
-        execute: showCellDiffCommand(cellFooterTracker)
-      }
-    )
+    app.commands.addCommand('show-diff', {
+      execute: showCellDiffCommand(cellFooterTracker)
+    });
   }
 };
 
