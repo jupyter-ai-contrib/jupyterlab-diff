@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab-cell-diff",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "description": "A JupyterLab Extension for showing cell (git) diffs.",
     "keywords": [
         "jupyter",
