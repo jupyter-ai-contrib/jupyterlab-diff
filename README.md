@@ -1,6 +1,6 @@
 # JupyterLab Plugin: Show a Cell Diff
 
-[![Github Actions Status](https://github.com/Zsailer/jupyterlab-cell-diff/workflows/Build/badge.svg)](https://github.com/Zsailer/jupyterlab-cell-diff/actions/workflows/build.yml)
+[![Github Actions Status](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/workflows/Build/badge.svg)](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/actions/workflows/build.yml)
 
 A JupyterLab Extension for showing cell (git) diffs.
 
