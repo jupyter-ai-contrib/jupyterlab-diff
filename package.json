@@ -7,9 +7,9 @@
         "jupyterlab",
         "jupyterlab-extension"
     ],
-    "homepage": "https://github.com/Zsailer/jupyterlab-cell-diff",
+    "homepage": "https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff",
     "bugs": {
-        "url": "https://github.com/Zsailer/jupyterlab-cell-diff/issues"
+        "url": "https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/issues"
     },
     "license": "BSD-3-Clause",
     "author": {
@@ -27,7 +27,7 @@
     "style": "style/index.css",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Zsailer/jupyterlab-cell-diff.git"
+        "url": "https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff.git"
     },
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",
