@@ -25,8 +25,8 @@ classifiers = [
 dependencies = [
     "nbdime",
     "jupyter_server>=2.4.0,<3",
-    "jupyterlab-eventlistener>=0.4.0",
-    "jupyterlab-cell-input-footer>=0.2.0"
+    "jupyterlab-eventlistener>=0.4.0,<0.5",
+    "jupyterlab-cell-input-footer>=0.3.1,<0.4"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
