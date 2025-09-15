@@ -37,6 +37,14 @@ The extension provides several commands:
 - `jupyterlab-cell-diff:show-codemirror` - Show diff using `@codemirror/merge`
 - `jupyterlab-cell-diff:show-nbdime` - Show diff using NBDime
 
+### Use with `@codemirror/merge`
+
+https://github.com/user-attachments/assets/0dacd7f0-5963-4ebe-81da-2958f0117071
+
+### Use with NBDime
+
+https://github.com/user-attachments/assets/87e93eab-ad67-468c-b228-f5a0e93f8bea
+
 ### Programmatic Usage
 
 ```typescript
