@@ -1,5 +1,5 @@
 import { ICellModel } from '@jupyterlab/cells';
-import { nullTranslator, TranslationBundle } from '@jupyterlab/translation';
+import { TranslationBundle } from '@jupyterlab/translation';
 import { checkIcon, ToolbarButton, undoIcon } from '@jupyterlab/ui-components';
 import { Widget } from '@lumino/widgets';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
