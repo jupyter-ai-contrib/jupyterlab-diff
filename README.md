@@ -1,23 +1,64 @@
-# JupyterLab Plugin: Show a Cell Diff
+# jupyterlab-cell-diff
 
 [![Github Actions Status](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/workflows/Build/badge.svg)](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/actions/workflows/build.yml)
 
-A JupyterLab Extension for showing cell (git) diffs.
-
-This extension is composed of a Python package named `jupyterlab_cell_diff`
-for the server extension and a NPM package named `jupyterlab-cell-diff`
-for the frontend extension.
+A JupyterLab extension for showing cell diffs with multiple diffing strategies.
 
 ## Requirements
 
 - JupyterLab >= 4.0.0
 
-## Install
+## Installation
 
-To install the extension, execute:
+### PyPI Installation
 
 ```bash
 pip install jupyterlab_cell_diff
+```
+
+### Development Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff.git
+cd jupyterlab-cell-diff
+
+# Install the extension in development mode
+pip install -e .
+jupyter labextension develop . --overwrite
+```
+
+## Usage
+
+### Commands
+
+The extension provides several commands:
+
+- `jupyterlab-cell-diff:show-codemirror` - Show diff using `@codemirror/merge`
+- `jupyterlab-cell-diff:show-nbdime` - Show diff using NBDime
+
+### Use with `@codemirror/merge`
+
+https://github.com/user-attachments/assets/0dacd7f0-5963-4ebe-81da-2958f0117071
+
+### Use with NBDime
+
+https://github.com/user-attachments/assets/87e93eab-ad67-468c-b228-f5a0e93f8bea
+
+### Programmatic Usage
+
+```typescript
+app.commands.execute('jupyterlab-cell-diff:show-codemirror', {
+  cellId: 'cell-id',
+  originalSource: 'print("Hello")',
+  newSource: 'print("Hello, World!")'
+});
+
+app.commands.execute('jupyterlab-cell-diff:show-nbdime', {
+  cellId: 'cell-id',
+  originalSource: 'print("Hello")',
+  newSource: 'print("Hello, World!")'
+});
 ```
 
 ## Uninstall
