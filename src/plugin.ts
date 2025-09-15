@@ -154,7 +154,7 @@ const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
 
           await createCodeMirrorDiffWidget(options);
         } catch (error) {
-          console.error(trans.__('Failed to create diff widget:'), error);
+          console.error(trans.__('Failed to create diff widget: %1'), error);
         }
       }
     });
@@ -254,7 +254,7 @@ const nbdimePlugin: JupyterFrontEndPlugin<void> = {
           diffData = (response as any).diff;
         } catch (error) {
           console.warn(
-            trans.__('Failed to fetch diff data from server:'),
+            trans.__('Failed to fetch diff data from server: %1'),
             error
           );
         }
@@ -280,7 +280,7 @@ const nbdimePlugin: JupyterFrontEndPlugin<void> = {
 
           await createNBDimeDiffWidget(options);
         } catch (error) {
-          console.error(trans.__('Failed to create diff widget:'), error);
+          console.error(trans.__('Failed to create diff widget: %1'), error);
         }
       }
     });
