@@ -48,12 +48,13 @@ export async function createNBDimeDiffWidget(
     originalSource,
     newSource,
     diffData,
+    trans,
     showActionButtons = true,
     openDiff = true
   } = options;
 
   if (!diffData || !diffData.diff) {
-    throw new Error('NBDime strategy requires diff data');
+    throw new Error(trans.__('NBDime strategy requires diff data'));
   }
 
   const diff = createPatchStringDiffModel(
@@ -68,7 +69,8 @@ export async function createNBDimeDiffWidget(
     originalSource,
     newSource,
     showActionButtons,
-    openDiff
+    openDiff,
+    trans
   });
 
   diffWidget.addClass('jupyterlab-cell-diff');
