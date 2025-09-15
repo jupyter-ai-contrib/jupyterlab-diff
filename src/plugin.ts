@@ -4,12 +4,18 @@ import {
 } from '@jupyterlab/application';
 import { ICellModel } from '@jupyterlab/cells';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
 
 import { requestAPI } from './handler';
 import { IDiffWidgetOptions } from './widget';
 import { createNBDimeDiffWidget } from './diff/nbdime';
 import { createCodeMirrorDiffWidget } from './diff/codemirror';
+
+/**
+ * The translation namespace for the plugin.
+ */
+const TRANSLATION_NAMESPACE = 'jupyterlab-cell-diff';
 
 /**
  * Find a notebook by path using the notebook tracker
@@ -56,43 +62,50 @@ const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-cell-diff:codemirror-plugin',
   description: 'Expose a command to show cell diffs using CodeMirror',
   requires: [ICellFooterTracker, INotebookTracker],
+  optional: [ITranslator],
   autoStart: true,
   activate: async (
     app: JupyterFrontEnd,
     cellFooterTracker: ICellFooterTracker,
-    notebookTracker: INotebookTracker
+    notebookTracker: INotebookTracker,
+    translator: ITranslator | null
   ) => {
     const { commands } = app;
+    const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
 
     commands.addCommand('jupyterlab-cell-diff:show-codemirror', {
-      label: 'Show Cell Diff (CodeMirror)',
+      label: trans.__('Show Cell Diff (CodeMirror)'),
       describedBy: {
         args: {
           type: 'object',
           properties: {
             cellId: {
               type: 'string',
-              description: 'ID of the cell to show diff for'
+              description: trans.__('ID of the cell to show diff for')
             },
             originalSource: {
               type: 'string',
-              description: 'Original source code to compare against'
+              description: trans.__('Original source code to compare against')
             },
             newSource: {
               type: 'string',
-              description: 'New source code to compare with'
+              description: trans.__('New source code to compare with')
             },
             showActionButtons: {
               type: 'boolean',
-              description: 'Whether to show action buttons in the diff widget'
+              description: trans.__(
+                'Whether to show action buttons in the diff widget'
+              )
             },
             notebookPath: {
               type: 'string',
-              description: 'Path to the notebook containing the cell'
+              description: trans.__('Path to the notebook containing the cell')
             },
             openDiff: {
               type: 'boolean',
-              description: 'Whether to open the diff widget automatically'
+              description: trans.__(
+                'Whether to open the diff widget automatically'
+              )
             }
           }
         }
@@ -115,14 +128,16 @@ const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
         const cell = findCell(currentNotebook, cellId);
         if (!cell) {
           console.error(
-            'Missing required arguments: cellId (or no active cell found)'
+            trans.__(
+              'Missing required arguments: cellId (or no active cell found)'
+            )
           );
           return;
         }
 
         const footer = cellFooterTracker.getFooter(cell.id);
         if (!footer) {
-          console.error(`Footer not found for cell ${cell.id}`);
+          console.error(trans.__('Footer not found for cell %1', cell.id));
           return;
         }
 
@@ -133,12 +148,13 @@ const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
             originalSource,
             newSource,
             showActionButtons,
-            openDiff
+            openDiff,
+            trans
           };
 
           await createCodeMirrorDiffWidget(options);
         } catch (error) {
-          console.error('Failed to create diff widget:', error);
+          console.error(trans.__('Failed to create diff widget: %1'), error);
         }
       }
     });
@@ -152,43 +168,50 @@ const nbdimePlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-cell-diff:nbdime-plugin',
   description: 'Expose a command to show cell diffs using NBDime',
   requires: [ICellFooterTracker, INotebookTracker],
+  optional: [ITranslator],
   autoStart: true,
   activate: async (
     app: JupyterFrontEnd,
     cellFooterTracker: ICellFooterTracker,
-    notebookTracker: INotebookTracker
+    notebookTracker: INotebookTracker,
+    translator: ITranslator | null
   ) => {
     const { commands } = app;
+    const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
 
     commands.addCommand('jupyterlab-cell-diff:show-nbdime', {
-      label: 'Show Cell Diff (NBDime)',
+      label: trans.__('Show Cell Diff (NBDime)'),
       describedBy: {
         args: {
           type: 'object',
           properties: {
             cellId: {
               type: 'string',
-              description: 'ID of the cell to show diff for'
+              description: trans.__('ID of the cell to show diff for')
             },
             originalSource: {
               type: 'string',
-              description: 'Original source code to compare against'
+              description: trans.__('Original source code to compare against')
             },
             newSource: {
               type: 'string',
-              description: 'New source code to compare with'
+              description: trans.__('New source code to compare with')
             },
             showActionButtons: {
               type: 'boolean',
-              description: 'Whether to show action buttons in the diff widget'
+              description: trans.__(
+                'Whether to show action buttons in the diff widget'
+              )
             },
             notebookPath: {
               type: 'string',
-              description: 'Path to the notebook containing the cell'
+              description: trans.__('Path to the notebook containing the cell')
             },
             openDiff: {
               type: 'boolean',
-              description: 'Whether to open the diff widget automatically'
+              description: trans.__(
+                'Whether to open the diff widget automatically'
+              )
             }
           }
         }
@@ -211,7 +234,9 @@ const nbdimePlugin: JupyterFrontEndPlugin<void> = {
         const cell = findCell(currentNotebook, cellId);
         if (!cell) {
           console.error(
-            'Missing required arguments: cellId (or no active cell found)'
+            trans.__(
+              'Missing required arguments: cellId (or no active cell found)'
+            )
           );
           return;
         }
@@ -228,12 +253,15 @@ const nbdimePlugin: JupyterFrontEndPlugin<void> = {
           });
           diffData = (response as any).diff;
         } catch (error) {
-          console.warn('Failed to fetch diff data from server:', error);
+          console.warn(
+            trans.__('Failed to fetch diff data from server: %1'),
+            error
+          );
         }
 
         const footer = cellFooterTracker.getFooter(cell.id);
         if (!footer) {
-          console.error(`Footer not found for cell ${cell.id}`);
+          console.error(trans.__('Footer not found for cell %1', cell.id));
           return;
         }
 
@@ -246,12 +274,13 @@ const nbdimePlugin: JupyterFrontEndPlugin<void> = {
             diffData: diffData ? { diff: diffData } : undefined,
             cellId: cell.id,
             showActionButtons,
-            openDiff
+            openDiff,
+            trans
           };
 
           await createNBDimeDiffWidget(options);
         } catch (error) {
-          console.error('Failed to create diff widget:', error);
+          console.error(trans.__('Failed to create diff widget: %1'), error);
         }
       }
     });

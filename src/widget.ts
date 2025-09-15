@@ -1,4 +1,5 @@
 import { ICellModel } from '@jupyterlab/cells';
+import { TranslationBundle } from '@jupyterlab/translation';
 import { checkIcon, ToolbarButton, undoIcon } from '@jupyterlab/ui-components';
 import { Widget } from '@lumino/widgets';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
@@ -26,6 +27,11 @@ export interface IDiffWidgetOptions {
    * The new/modified source code
    */
   newSource: string;
+
+  /**
+   * The translation bundle
+   */
+  trans: TranslationBundle;
 
   /**
    * Additional diff data (for nbdime strategy)
@@ -61,6 +67,7 @@ export abstract class BaseDiffWidget extends Widget {
     this._cellFooterTracker = options.cellFooterTracker;
     this._originalSource = options.originalSource;
     this._newSource = options.newSource || options.cell.sharedModel.getSource();
+    this._trans = options.trans;
     this._showActionButtons = options.showActionButtons ?? true;
     this._openDiff = options.openDiff ?? true;
   }
@@ -128,7 +135,7 @@ export abstract class BaseDiffWidget extends Widget {
    */
   private _createButtons(footer: any): void {
     this._toggleButton = new ToolbarButton({
-      label: 'Compare changes',
+      label: this._trans.__('Compare changes'),
       enabled: true,
       className: 'jp-DiffView-toggle',
       onClick: () => {
@@ -141,7 +148,7 @@ export abstract class BaseDiffWidget extends Widget {
     if (this._showActionButtons) {
       const rejectButton = new ToolbarButton({
         icon: undoIcon,
-        tooltip: 'Reject Changes',
+        tooltip: this._trans.__('Reject Changes'),
         enabled: true,
         className: 'jp-DiffView-reject',
         onClick: () => this.onRejectClick()
@@ -149,7 +156,7 @@ export abstract class BaseDiffWidget extends Widget {
 
       const acceptButton = new ToolbarButton({
         icon: checkIcon,
-        tooltip: 'Accept Changes',
+        tooltip: this._trans.__('Accept Changes'),
         enabled: true,
         className: 'jp-DiffView-accept',
         onClick: () => this.onAcceptClick()
@@ -191,4 +198,5 @@ export abstract class BaseDiffWidget extends Widget {
   protected _showActionButtons: boolean;
   protected _openDiff: boolean;
   protected _toggleButton: ToolbarButton | null = null;
+  private _trans: TranslationBundle;
 }

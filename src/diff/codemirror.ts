@@ -91,6 +91,7 @@ export async function createCodeMirrorDiffWidget(
     cellFooterTracker,
     originalSource,
     newSource,
+    trans,
     showActionButtons = true,
     openDiff = true
   } = options;
@@ -101,7 +102,8 @@ export async function createCodeMirrorDiffWidget(
     cell,
     cellFooterTracker,
     showActionButtons,
-    openDiff
+    openDiff,
+    trans
   });
 
   diffWidget.addClass('jupyterlab-cell-diff');
