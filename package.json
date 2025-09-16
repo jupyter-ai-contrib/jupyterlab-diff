@@ -70,8 +70,7 @@
         "@jupyterlab/ui-components": "^4.0.0",
         "@lumino/widgets": "^2.0.0",
         "codemirror": "^6.0.2",
-        "jupyterlab-cell-input-footer": "^0.3.0",
-        "nbdime": "^7.0.1"
+        "jupyterlab-cell-input-footer": "^0.3.0"
     },
     "devDependencies": {
         "@jupyterlab/builder": "^4.0.0",

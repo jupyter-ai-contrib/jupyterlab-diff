@@ -34,11 +34,6 @@ export interface IDiffWidgetOptions {
   trans: TranslationBundle;
 
   /**
-   * Additional diff data (for nbdime strategy)
-   */
-  diffData?: any;
-
-  /**
    * Cell ID for identification
    */
   cellId?: string;

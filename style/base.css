@@ -24,9 +24,3 @@
   max-height: 400px;
   overflow: auto;
 }
-
-/* NBDime diff widget styling */
-.nbdime-diff-widget {
-  max-height: 400px;
-  overflow: auto;
-}
