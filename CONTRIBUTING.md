@@ -15,8 +15,6 @@ The `jlpm` command is JupyterLab's pinned version of
 pip install -e "."
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
-# Server extension must be manually installed in develop mode
-jupyter server extension enable jupyterlab_cell_diff
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
@@ -42,7 +40,6 @@ jupyter lab build --minimize=False
 
 ```bash
 # Server extension must be manually disabled in develop mode
-jupyter server extension disable jupyterlab_cell_diff
 pip uninstall jupyterlab_cell_diff
 ```
 

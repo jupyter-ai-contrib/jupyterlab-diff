@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "jupyterlab_cell_diff"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
@@ -16,15 +16,13 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "nbdime",
-    "jupyter_server>=2.4.0,<3",
     "jupyterlab-eventlistener>=0.4.0,<0.5",
     "jupyterlab-cell-input-footer>=0.3.1,<0.4"
 ]
@@ -43,7 +41,6 @@ exclude = [".github", "binder"]
 [tool.hatch.build.targets.wheel.shared-data]
 "jupyterlab_cell_diff/labextension" = "share/jupyter/labextensions/jupyterlab-cell-diff"
 "install.json" = "share/jupyter/labextensions/jupyterlab-cell-diff/install.json"
-"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 
 [tool.hatch.build.hooks.version]
 path = "jupyterlab_cell_diff/_version.py"
