@@ -24,3 +24,12 @@
   max-height: 400px;
   overflow: auto;
 }
+
+.jp-DiffView .cm-activeLineGutter {
+  background-color: var(--jp-layout-color3);
+  color: var(--jp-ui-font-color1);
+}
+
+.jp-DiffView .cm-lineNumbers .cm-gutterElement {
+  color: var(--jp-ui-font-color2);
+}
