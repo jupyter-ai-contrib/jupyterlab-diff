@@ -105,7 +105,8 @@ const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
                 'Whether to open the diff widget automatically'
               )
             }
-          }
+          },
+          required: ['originalSource', 'newSource']
         }
       },
       execute: async (args: any = {}) => {
@@ -117,6 +118,13 @@ const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
           notebookPath,
           openDiff = true
         } = args;
+
+        if (!originalSource || !newSource) {
+          console.error(
+            trans.__('Missing required arguments: originalSource and newSource')
+          );
+          return;
+        }
 
         const currentNotebook = findNotebook(notebookTracker, notebookPath);
         if (!currentNotebook) {
