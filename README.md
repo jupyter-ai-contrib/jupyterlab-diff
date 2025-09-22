@@ -52,14 +52,14 @@ app.commands.execute('jupyterlab-cell-diff:show-codemirror', {
 
 The `jupyterlab-cell-diff:show-codemirror` command accepts the following arguments:
 
-| Argument | Type | Required | Description |
-|----------|------|----------|-------------|
-| `cellId` | `string` | No | ID of the cell to show diff for. If not provided, uses the active cell |
-| `originalSource` | `string` | Yes | Original source code to compare against |
-| `newSource` | `string` | Yes | New source code to compare with |
-| `showActionButtons` | `boolean` | No | Whether to show action buttons in the diff widget (default: `true`) |
-| `notebookPath` | `string` | No | Path to the notebook containing the cell. If not provided, uses the current notebook |
-| `openDiff` | `boolean` | No | Whether to open the diff widget automatically (default: `true`) |
+| Argument            | Type      | Required | Description                                                                          |
+| ------------------- | --------- | -------- | ------------------------------------------------------------------------------------ |
+| `cellId`            | `string`  | No       | ID of the cell to show diff for. If not provided, uses the active cell               |
+| `originalSource`    | `string`  | Yes      | Original source code to compare against                                              |
+| `newSource`         | `string`  | Yes      | New source code to compare with                                                      |
+| `showActionButtons` | `boolean` | No       | Whether to show action buttons in the diff widget (default: `true`)                  |
+| `notebookPath`      | `string`  | No       | Path to the notebook containing the cell. If not provided, uses the current notebook |
+| `openDiff`          | `boolean` | No       | Whether to open the diff widget automatically (default: `true`)                      |
 
 ## Uninstall
 
