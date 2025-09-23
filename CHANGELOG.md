@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.5.1
+
+([Full Changelog](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/compare/v0.5.0...04e46da359755617d98a10311c0604fd331c72cb))
+
+### Bugs fixed
+
+- Fix gutter styling with dark themes [#14](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/pull/14) ([@jtpio](https://github.com/jtpio))
+
+### Documentation improvements
+
+- Document command arguments [#15](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/pull/15) ([@jtpio](https://github.com/jtpio))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/graphs/contributors?from=2025-09-17&to=2025-09-23&type=c))
+
+[@jtpio](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-cell-diff+involves%3Ajtpio+updated%3A2025-09-17..2025-09-23&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.5.0
 
 ([Full Changelog](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/compare/v0.4.2...787f10383f9ce4eb2b6d781b57ddd808b859b14c))
@@ -25,8 +45,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/graphs/contributors?from=2025-01-03&to=2025-09-17&type=c))
 
 [@jtpio](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-cell-diff+involves%3Ajtpio+updated%3A2025-01-03..2025-09-17&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.4.2
 
