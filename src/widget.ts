@@ -3,6 +3,7 @@ import { TranslationBundle } from '@jupyterlab/translation';
 import { checkIcon, ToolbarButton, undoIcon } from '@jupyterlab/ui-components';
 import { Widget } from '@lumino/widgets';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
+import { CellFooterWidget } from 'jupyterlab-cell-input-footer/lib/widget';
 
 /**
  * Options for creating a diff widget
@@ -128,7 +129,7 @@ export abstract class BaseDiffWidget extends Widget {
   /**
    * Create accept, reject, and toggle buttons for the footer toolbar.
    */
-  private _createButtons(footer: any): void {
+  private _createButtons(footer: CellFooterWidget): void {
     this._toggleButton = new ToolbarButton({
       label: this._trans.__('Compare changes'),
       enabled: true,
@@ -186,12 +187,12 @@ export abstract class BaseDiffWidget extends Widget {
     }
   }
 
-  protected _cell: ICellModel;
-  protected _cellFooterTracker: ICellFooterTracker;
-  protected _originalSource: string;
-  protected _newSource: string;
-  protected _showActionButtons: boolean;
-  protected _openDiff: boolean;
-  protected _toggleButton: ToolbarButton | null = null;
+  private _cell: ICellModel;
+  private _cellFooterTracker: ICellFooterTracker;
+  private _originalSource: string;
+  private _newSource: string;
+  private _showActionButtons: boolean;
+  private _openDiff: boolean;
+  private _toggleButton: ToolbarButton | null = null;
   private _trans: TranslationBundle;
 }

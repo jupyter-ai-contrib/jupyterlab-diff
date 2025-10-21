@@ -8,17 +8,17 @@ import { basicSetup } from 'codemirror';
 import { IDiffWidgetOptions, BaseDiffWidget } from '../widget';
 
 /**
- * A Lumino widget that contains a CodeMirror diff view
+ * A Lumino widget that contains a CodeMirror split view (side-by-side comparison)
  */
-class CodeMirrorDiffWidget extends BaseDiffWidget {
+class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
   /**
-   * Construct a new CodeMirrorDiffWidget.
+   * Construct a new CodeMirrorSplitDiffWidget.
    */
   constructor(options: IDiffWidgetOptions) {
     super(options);
     this._originalCode = options.originalSource;
     this._modifiedCode = options.newSource;
-    this.addClass('jp-DiffView');
+    this.addClass('jp-SplitDiffView');
   }
 
   /**
@@ -26,26 +26,26 @@ class CodeMirrorDiffWidget extends BaseDiffWidget {
    */
   protected onAfterAttach(msg: Message): void {
     super.onAfterAttach(msg);
-    this._createMergeView();
+    this._createSplitView();
   }
 
   /**
    * Handle before-detach messages for the widget.
    */
   protected onBeforeDetach(msg: Message): void {
-    this._destroyMergeView();
+    this._destroySplitView();
     super.onBeforeDetach(msg);
   }
 
   /**
-   * Create the merge view with CodeMirror diff functionality.
+   * Create the split view with CodeMirror diff functionality.
    */
-  private _createMergeView(): void {
-    if (this._mergeView) {
+  private _createSplitView(): void {
+    if (this._splitView) {
       return;
     }
 
-    this._mergeView = new MergeView({
+    this._splitView = new MergeView({
       a: {
         doc: this._originalCode,
         extensions: [
@@ -69,21 +69,21 @@ class CodeMirrorDiffWidget extends BaseDiffWidget {
   }
 
   /**
-   * Destroy the merge view and clean up resources.
+   * Destroy the split view and clean up resources.
    */
-  private _destroyMergeView(): void {
-    if (this._mergeView) {
-      this._mergeView.destroy();
-      this._mergeView = null;
+  private _destroySplitView(): void {
+    if (this._splitView) {
+      this._splitView.destroy();
+      this._splitView = null;
     }
   }
 
   private _originalCode: string;
   private _modifiedCode: string;
-  private _mergeView: MergeView | null = null;
+  private _splitView: MergeView | null = null;
 }
 
-export async function createCodeMirrorDiffWidget(
+export async function createCodeMirrorSplitDiffWidget(
   options: IDiffWidgetOptions
 ): Promise<Widget> {
   const {
@@ -96,7 +96,7 @@ export async function createCodeMirrorDiffWidget(
     openDiff = true
   } = options;
 
-  const diffWidget = new CodeMirrorDiffWidget({
+  const diffWidget = new CodeMirrorSplitDiffWidget({
     originalSource,
     newSource,
     cell,

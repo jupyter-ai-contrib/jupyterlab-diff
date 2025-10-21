@@ -5,10 +5,20 @@ import {
 import { ICellModel } from '@jupyterlab/cells';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
+import { IEditorTracker } from '@jupyterlab/fileeditor';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
 
 import { IDiffWidgetOptions } from './widget';
-import { createCodeMirrorDiffWidget } from './diff/codemirror';
+import { createCodeMirrorSplitDiffWidget } from './diff/cell';
+import {
+  createUnifiedCellDiffView,
+  UnifiedCellDiffManager
+} from './diff/unified-cell';
+import {
+  createUnifiedFileDiff,
+  UnifiedFileDiffManager
+} from './diff/unified-file';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 
 /**
  * The translation namespace for the plugin.
@@ -54,11 +64,11 @@ export function findCell(
 }
 
 /**
- * CodeMirror diff plugin
+ * Split cell diff plugin - shows side-by-side comparison
  */
-const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-cell-diff:codemirror-plugin',
-  description: 'Expose a command to show cell diffs using CodeMirror',
+const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
+  id: 'jupyterlab-cell-diff:split-cell-diff-plugin',
+  description: 'Show cell diff using side-by-side split view',
   requires: [ICellFooterTracker, INotebookTracker],
   optional: [ITranslator],
   autoStart: true,
@@ -71,8 +81,8 @@ const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
     const { commands } = app;
     const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
 
-    commands.addCommand('jupyterlab-cell-diff:show-codemirror', {
-      label: trans.__('Show Cell Diff (CodeMirror)'),
+    commands.addCommand('jupyterlab-cell-diff:split-cell-diff', {
+      label: trans.__('Show Cell Diff (Split View)'),
       describedBy: {
         args: {
           type: 'object',
@@ -147,24 +157,258 @@ const codeMirrorPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        try {
-          const options: IDiffWidgetOptions = {
-            cell,
-            cellFooterTracker,
-            originalSource,
-            newSource,
-            showActionButtons,
-            openDiff,
-            trans
-          };
+        const options: IDiffWidgetOptions = {
+          cell,
+          cellFooterTracker,
+          originalSource,
+          newSource,
+          showActionButtons,
+          openDiff,
+          trans
+        };
 
-          await createCodeMirrorDiffWidget(options);
-        } catch (error) {
-          console.error(trans.__('Failed to create diff widget: %1'), error);
-        }
+        await createCodeMirrorSplitDiffWidget(options);
       }
     });
   }
 };
 
-export default [codeMirrorPlugin];
+/**
+ * Unified cell diff plugin
+ */
+const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
+  id: 'jupyterlab-cell-diff:unified-cell-diff-plugin',
+  description: 'Show cell diff using unified view',
+  requires: [ICellFooterTracker, INotebookTracker],
+  optional: [ITranslator],
+  autoStart: true,
+  activate: async (
+    app: JupyterFrontEnd,
+    cellFooterTracker: ICellFooterTracker,
+    notebookTracker: INotebookTracker,
+    translator: ITranslator | null
+  ) => {
+    const { commands } = app;
+    const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
+
+    // Track active unified diff managers to avoid creating duplicates
+    const cellDiffManagers = new Map<string, UnifiedCellDiffManager>();
+
+    commands.addCommand('jupyterlab-cell-diff:unified-cell-diff', {
+      label: trans.__('Show Cell Diff (Unified)'),
+      describedBy: {
+        args: {
+          type: 'object',
+          properties: {
+            cellId: {
+              type: 'string',
+              description: trans.__('ID of the cell to show diff for')
+            },
+            originalSource: {
+              type: 'string',
+              description: trans.__('Original source code to compare against')
+            },
+            newSource: {
+              type: 'string',
+              description: trans.__('New source code to compare with')
+            },
+            showActionButtons: {
+              type: 'boolean',
+              description: trans.__(
+                'Whether to show action buttons for chunk acceptance'
+              )
+            },
+            notebookPath: {
+              type: 'string',
+              description: trans.__('Path to the notebook containing the cell')
+            }
+          },
+          required: ['originalSource', 'newSource']
+        }
+      },
+      execute: async (args: any = {}) => {
+        const {
+          cellId,
+          originalSource,
+          newSource,
+          showActionButtons = true,
+          notebookPath
+        } = args;
+
+        if (!originalSource || !newSource) {
+          console.error(
+            trans.__('Missing required arguments: originalSource and newSource')
+          );
+          return;
+        }
+
+        const currentNotebook = findNotebook(notebookTracker, notebookPath);
+        if (!currentNotebook) {
+          return;
+        }
+
+        const cell = findCell(currentNotebook, cellId);
+        if (!cell) {
+          console.error(
+            trans.__(
+              'Missing required arguments: cellId (or no active cell found)'
+            )
+          );
+          return;
+        }
+
+        // Get the cell widget that corresponds to the found cell
+        const cellWidget = currentNotebook.content.widgets.find(
+          widget => widget.model.id === cell.id
+        );
+        if (!cellWidget || !cellWidget.editor) {
+          console.error(trans.__('No editor found for cell %1', cell.id));
+          return;
+        }
+
+        // Dispose any existing manager for this cell
+        const existingManager = cellDiffManagers.get(cell.id);
+        if (existingManager && !existingManager.isDisposed) {
+          existingManager.dispose();
+        }
+
+        // Create a new manager
+        const manager = await createUnifiedCellDiffView({
+          cell,
+          editor: cellWidget.editor as CodeMirrorEditor,
+          cellFooterTracker,
+          originalSource,
+          newSource,
+          showActionButtons,
+          trans
+        });
+        cellDiffManagers.set(cell.id, manager);
+      }
+    });
+  }
+};
+
+/**
+ * Unified file diff plugin
+ */
+const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
+  id: 'jupyterlab-cell-diff:unified-file-diff-plugin',
+  description: 'Show file diff using unified view',
+  requires: [IEditorTracker],
+  optional: [ITranslator],
+  autoStart: true,
+  activate: async (
+    app: JupyterFrontEnd,
+    editorTracker: IEditorTracker,
+    translator: ITranslator | null
+  ) => {
+    const { commands } = app;
+    const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
+
+    // Track active unified diff managers to avoid creating duplicates
+    const fileDiffManagers = new Map<string, UnifiedFileDiffManager>();
+
+    commands.addCommand('jupyterlab-cell-diff:unified-file-diff', {
+      label: trans.__('Diff File (Unified)'),
+      describedBy: {
+        args: {
+          type: 'object',
+          properties: {
+            filePath: {
+              type: 'string',
+              description: trans.__(
+                'Path to the file to diff. Defaults to current file in editor.'
+              )
+            },
+            originalSource: {
+              type: 'string',
+              description: trans.__('Original source code to compare against')
+            },
+            newSource: {
+              type: 'string',
+              description: trans.__('New source code to compare with')
+            },
+            showActionButtons: {
+              type: 'boolean',
+              description: trans.__(
+                'Whether to show action buttons for chunk acceptance. Defaults to true.'
+              )
+            }
+          },
+          required: ['originalSource', 'newSource']
+        }
+      },
+      execute: async (args: any = {}) => {
+        const {
+          filePath,
+          originalSource,
+          newSource,
+          showActionButtons = true
+        } = args;
+
+        if (!originalSource || !newSource) {
+          console.error(
+            trans.__('Missing required arguments: originalSource and newSource')
+          );
+          return;
+        }
+
+        // Try to find the file editor widget by its filepath using IEditorTracker
+        let fileEditorWidget = editorTracker.currentWidget;
+        if (filePath) {
+          // Search through all open file editors in the tracker
+          const fileEditors = editorTracker.find(widget => {
+            return widget.context?.path === filePath;
+          });
+          if (fileEditors) {
+            fileEditorWidget = fileEditors;
+          }
+        }
+
+        // If no specific file editor found, try to get the current widget from the tracker
+        if (!fileEditorWidget) {
+          fileEditorWidget = editorTracker.currentWidget;
+        }
+
+        if (!fileEditorWidget) {
+          console.error(trans.__('No editor found for the file'));
+          return;
+        }
+
+        // Try to get the editor from the file editor widget
+        const editor = fileEditorWidget.content.editor as CodeMirrorEditor;
+        if (!editor) {
+          console.error(trans.__('No code editor found in the file widget'));
+          return;
+        }
+
+        // Use the file path as the key, or a default key if not available
+        const managerKey =
+          filePath || fileEditorWidget.context?.path || 'default';
+
+        // Dispose any existing manager for this file
+        const existingManager = fileDiffManagers.get(managerKey);
+        if (existingManager && !existingManager.isDisposed) {
+          existingManager.dispose();
+        }
+
+        // Create a new manager
+        const manager = await createUnifiedFileDiff({
+          editor,
+          fileEditorWidget,
+          originalSource,
+          newSource,
+          showActionButtons,
+          trans
+        });
+        fileDiffManagers.set(managerKey, manager);
+      }
+    });
+  }
+};
+
+export default [
+  splitCellDiffPlugin,
+  unifiedCellDiffPlugin,
+  unifiedFileDiffPlugin
+];
