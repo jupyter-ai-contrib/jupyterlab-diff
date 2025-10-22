@@ -4,32 +4,76 @@
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
 
-/* CodeMirror merge view styling */
-.jp-cellfooter .cm-merge-2pane {
-  display: grid;
-  padding: 0;
-
-  /* editor | gap | editor */
-  grid-template-columns: 49% 2% 49%;
-  grid-auto-rows: minmax(18px, auto);
-}
-
-/* Diff widget styling */
-.jp-DiffView {
+/* Unified merge view styling */
+.cm-unified {
   background-color: var(--jp-layout-color0);
-}
-
-.jp-DiffView .cm-merge-2pane {
-  min-height: 100px;
-  max-height: 400px;
-  overflow: auto;
-}
-
-.jp-DiffView .cm-activeLineGutter {
-  background-color: var(--jp-layout-color3);
   color: var(--jp-ui-font-color1);
 }
 
-.jp-DiffView .cm-lineNumbers .cm-gutterElement {
-  color: var(--jp-ui-font-color2);
+/* Removed lines in unified diff */
+.cm-deletedLine {
+  background-color: rgb(255 0 0 / 10%);
+}
+
+.cm-deletedChunk {
+  background-color: rgb(255 0 0 / 15%);
+}
+
+/* Added lines in unified diff */
+.cm-addedLine {
+  background-color: rgb(0 128 0 / 10%);
+}
+
+.cm-addedChunk {
+  background-color: rgb(0 128 0 / 15%);
+}
+
+/* Unchanged lines */
+.cm-unchangedLine {
+  background-color: transparent;
+}
+
+/* Conflict markers */
+.cm-conflictMarker {
+  background-color: var(--jp-layout-color3);
+  color: var(--jp-error-color0);
+}
+
+/* Custom merge control styling with JupyterLab icons */
+.cm-chunkButtons {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 2px;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Style our custom JupyterLab icon buttons to match CodeMirror line height */
+.jp-merge-accept-button,
+.jp-merge-reject-button {
+  cursor: pointer;
+  padding: 1px;
+  border-radius: 2px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.1s;
+  height: 1.4em;
+  width: auto;
+  vertical-align: middle;
+}
+
+/* Make the icon smaller to fit the line height */
+.jp-merge-accept-button svg,
+.jp-merge-reject-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.jp-merge-accept-button:hover,
+.jp-merge-reject-button:hover {
+  background-color: var(--jp-layout-color3);
+  border-color: var(--jp-border-color1);
 }
