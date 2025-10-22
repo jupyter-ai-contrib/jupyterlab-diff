@@ -32,6 +32,9 @@ async function setupFileWithUnifiedDiff(
 
 /**
  * Get the content of the current file in the editor.
+ *
+ * TODO: follow the same approach as in JupyterLab, with getEditorText?
+ * See https://github.com/jupyterlab/jupyterlab/blob/1abbdf39fb204e47941e8d8021d85366a0ecece9/galata/test/jupyterlab/file-edit.test.ts#L73-L85
  */
 async function getFileContent(page: IJupyterLabPageFixture): Promise<string> {
   return await page.evaluate(() => {

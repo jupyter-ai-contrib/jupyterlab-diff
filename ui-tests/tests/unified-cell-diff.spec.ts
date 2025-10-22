@@ -31,6 +31,9 @@ async function setupCellWithUnifiedDiff(
 
 /**
  * Get the content of the first cell in the active notebook.
+ *
+ * TODO: use getCellTextInput from galata?
+ * See https://github.com/jupyterlab/jupyterlab/blob/1abbdf39fb204e47941e8d8021d85366a0ecece9/galata/src/helpers/notebook.ts#L677-L707
  */
 async function getCellContent(page: IJupyterLabPageFixture): Promise<string> {
   return await page.evaluate(() => {
