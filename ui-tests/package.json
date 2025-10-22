@@ -1,0 +1,15 @@
+{
+  "name": "jupyterlab-diff-ui-tests",
+  "version": "1.0.0",
+  "description": "jupyterlab-diff Integration Tests",
+  "private": true,
+  "scripts": {
+    "start": "jupyter lab --config jupyter_server_test_config.py",
+    "test": "jlpm playwright test",
+    "test:update": "jlpm playwright test --update-snapshots"
+  },
+  "devDependencies": {
+    "@jupyterlab/galata": "^5.4.0",
+    "@playwright/test": "^1.55.1"
+  }
+}
