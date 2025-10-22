@@ -16,7 +16,7 @@ const DEFAULT_NAME = 'untitled.py';
 async function setupFileWithUnifiedDiff(
   page: IJupyterLabPageFixture,
   originalSource: string,
-  newSource: string,
+  newSource: string
 ) {
   await page.evaluate(
     async ({ originalSource, newSource, command }) => {
