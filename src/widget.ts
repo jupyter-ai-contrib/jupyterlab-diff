@@ -131,6 +131,7 @@ export abstract class BaseDiffWidget extends Widget {
   private _createButtons(footer: any): void {
     this._toggleButton = new ToolbarButton({
       label: this._trans.__('Compare changes'),
+      tooltip: this._trans.__('Compare changes'),
       enabled: true,
       className: 'jp-DiffView-toggle',
       onClick: () => {
