@@ -147,7 +147,7 @@ We welcome contributions from the community! To contribute:
 - Create a new branch
 - Make your changes
 - Submit a pull request
-For more details, check out our [CONTRIBUTING.md](https://github.com/jupyter-ai-contrib/jupyterlab-diff?tab=contributing-ov-file#contributing).
+  For more details, check out our [CONTRIBUTING.md](https://github.com/jupyter-ai-contrib/jupyterlab-diff?tab=contributing-ov-file#contributing).
 
 ## Uninstall
 
