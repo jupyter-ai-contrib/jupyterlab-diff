@@ -1,6 +1,6 @@
-# jupyterlab-cell-diff
+# jupyterlab-diff
 
-[![Github Actions Status](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/workflows/Build/badge.svg)](https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/actions/workflows/build.yml)
+[![Github Actions Status](https://github.com/jupyter-ai-contrib/jupyterlab-diff/workflows/Build/badge.svg)](https://github.com/jupyter-ai-contrib/jupyterlab-diff/actions/workflows/build.yml)
 
 A JupyterLab extension for showing cell diffs with multiple diffing strategies.
 
@@ -20,8 +20,8 @@ pip install jupyterlab_cell_diff
 
 ```bash
 # Clone the repository
-git clone https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff.git
-cd jupyterlab-cell-diff
+git clone https://github.com/jupyter-ai-contrib/jupyterlab-diff.git
+cd jupyterlab-diff
 
 # Install the extension in development mode
 pip install -e .
@@ -34,9 +34,9 @@ jupyter labextension develop . --overwrite
 
 The extension provides commands to show diffs in multiple formats:
 
-- `jupyterlab-cell-diff:split-cell-diff` - Show cell diff using split view (side-by-side comparison)
-- `jupyterlab-cell-diff:unified-cell-diff` - Show cell diff using unified view
-- `jupyterlab-cell-diff:unified-file-diff` - Show file diff using unified view for regular Python files and other text files
+- `jupyterlab-diff:split-cell-diff` - Show cell diff using split view (side-by-side comparison)
+- `jupyterlab-diff:unified-cell-diff` - Show cell diff using unified view
+- `jupyterlab-diff:unified-file-diff` - Show file diff using unified view for regular Python files and other text files
 
 https://github.com/user-attachments/assets/0dacd7f0-5963-4ebe-81da-2958f0117071
 
@@ -45,7 +45,7 @@ https://github.com/user-attachments/assets/0dacd7f0-5963-4ebe-81da-2958f0117071
 #### Split Cell Diff (Side-by-side View)
 
 ```typescript
-app.commands.execute('jupyterlab-cell-diff:split-cell-diff', {
+app.commands.execute('jupyterlab-diff:split-cell-diff', {
   cellId: 'cell-id',
   originalSource: 'print("Hello")',
   newSource: 'print("Hello, World!")',
@@ -57,7 +57,7 @@ app.commands.execute('jupyterlab-cell-diff:split-cell-diff', {
 #### Unified Cell Diff
 
 ```typescript
-app.commands.execute('jupyterlab-cell-diff:unified-cell-diff', {
+app.commands.execute('jupyterlab-diff:unified-cell-diff', {
   cellId: 'cell-id',
   originalSource: 'print("Hello")',
   newSource: 'print("Hello, World!")',
@@ -68,7 +68,7 @@ app.commands.execute('jupyterlab-cell-diff:unified-cell-diff', {
 #### Unified File Diff
 
 ```typescript
-app.commands.execute('jupyterlab-cell-diff:unified-file-diff', {
+app.commands.execute('jupyterlab-diff:unified-file-diff', {
   filePath: '/path/to/file.py',
   originalSource: 'print("Hello")',
   newSource: 'print("Hello, World!")',
@@ -78,7 +78,7 @@ app.commands.execute('jupyterlab-cell-diff:unified-file-diff', {
 
 ### Command Arguments
 
-#### `jupyterlab-cell-diff:split-cell-diff` (Split View)
+#### `jupyterlab-diff:split-cell-diff` (Split View)
 
 | Argument            | Type      | Required | Description                                                                          |
 | ------------------- | --------- | -------- | ------------------------------------------------------------------------------------ |
@@ -89,7 +89,7 @@ app.commands.execute('jupyterlab-cell-diff:unified-file-diff', {
 | `notebookPath`      | `string`  | No       | Path to the notebook containing the cell. If not provided, uses the current notebook |
 | `openDiff`          | `boolean` | No       | Whether to open the diff widget automatically (default: `true`)                      |
 
-#### `jupyterlab-cell-diff:unified-cell-diff` (Unified View)
+#### `jupyterlab-diff:unified-cell-diff` (Unified View)
 
 | Argument            | Type      | Required | Description                                                                          |
 | ------------------- | --------- | -------- | ------------------------------------------------------------------------------------ |
@@ -99,7 +99,7 @@ app.commands.execute('jupyterlab-cell-diff:unified-file-diff', {
 | `showActionButtons` | `boolean` | No       | Whether to show action buttons for chunk acceptance (default: `true`)                |
 | `notebookPath`      | `string`  | No       | Path to the notebook containing the cell. If not provided, uses the current notebook |
 
-#### `jupyterlab-cell-diff:unified-file-diff` (File Diff)
+#### `jupyterlab-diff:unified-file-diff` (File Diff)
 
 | Argument            | Type      | Required | Description                                                           |
 | ------------------- | --------- | -------- | --------------------------------------------------------------------- |

@@ -1,5 +1,5 @@
 {
-    "name": "jupyterlab-cell-diff",
+    "name": "jupyterlab-diff",
     "version": "0.5.1",
     "description": "A JupyterLab Extension for showing cell (git) diffs.",
     "keywords": [
@@ -7,9 +7,9 @@
         "jupyterlab",
         "jupyterlab-extension"
     ],
-    "homepage": "https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff",
+    "homepage": "https://github.com/jupyter-ai-contrib/jupyterlab-diff",
     "bugs": {
-        "url": "https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff/issues"
+        "url": "https://github.com/jupyter-ai-contrib/jupyterlab-diff/issues"
     },
     "license": "BSD-3-Clause",
     "author": {
@@ -27,7 +27,7 @@
     "style": "style/index.css",
     "repository": {
         "type": "git",
-        "url": "https://github.com/jupyter-ai-contrib/jupyterlab-cell-diff.git"
+        "url": "https://github.com/jupyter-ai-contrib/jupyterlab-diff.git"
     },
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",

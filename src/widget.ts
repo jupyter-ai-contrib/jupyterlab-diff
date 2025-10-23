@@ -82,7 +82,7 @@ export abstract class BaseDiffWidget extends Widget {
       return;
     }
 
-    footer.removeWidget('jupyterlab-cell-diff');
+    footer.removeWidget('jupyterlab-diff');
     footer.removeToolbarItem('accept-diff');
     footer.removeToolbarItem('reject-diff');
     footer.removeToolbarItem('toggle-diff');
@@ -178,7 +178,7 @@ export abstract class BaseDiffWidget extends Widget {
       const cellId = this._cell.id;
       const footer = this._cellFooterTracker.getFooter(cellId);
       if (footer) {
-        footer.removeWidget('jupyterlab-cell-diff');
+        footer.removeWidget('jupyterlab-diff');
         footer.removeToolbarItem('accept-diff');
         footer.removeToolbarItem('reject-diff');
         footer.removeToolbarItem('toggle-diff');

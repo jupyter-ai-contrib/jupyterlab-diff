@@ -4,7 +4,7 @@ import { NotebookPanel } from '@jupyterlab/notebook';
 /**
  * The command to open the cell split diff view.
  */
-const SPLIT_CELL_DIFF_COMMAND = 'jupyterlab-cell-diff:split-cell-diff';
+const SPLIT_CELL_DIFF_COMMAND = 'jupyterlab-diff:split-cell-diff';
 
 /**
  * Setup a notebook cell with diff view.
