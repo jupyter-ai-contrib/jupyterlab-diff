@@ -13,7 +13,7 @@ A JupyterLab extension for showing cell diffs with multiple diffing strategies.
 ### PyPI Installation
 
 ```bash
-pip install jupyterlab_cell_diff
+pip install jupyterlab_diff
 ```
 
 ### Development Installation
@@ -123,7 +123,7 @@ The extension provides two diff viewing strategies:
 To remove the extension, execute:
 
 ```bash
-pip uninstall jupyterlab_cell_diff
+pip uninstall jupyterlab_diff
 ```
 
 ## Troubleshoot
