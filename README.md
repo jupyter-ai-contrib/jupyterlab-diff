@@ -76,6 +76,26 @@ app.commands.execute('jupyterlab-diff:unified-file-diff', {
 });
 ```
 
+### Browser console via `window.jupyterapp`
+
+ The commands can also be run from the browser console (for example during development) via the `app` object exposed as `window.jupyterapp`. The commands can be executed exactly the same way using `window.jupyterapp.commands.execute(...)`.
+
+First JupyterLab needs to be started with the `--expose-app-in-browser` flag to expose `window.jupyterapp`:
+
+```
+jupyter lab --expose-app-in-browser
+```
+
+Then, in the browser dev tools console:
+
+```javascript
+window.jupyterapp.commands.execute('jupyterlab-diff:split-cell-diff', {
+  originalSource: `def add():\n  return\n`,
+  newSource: `def add(a, b):\n  return a + b\n`,
+  showActionButtons: true,
+});
+```
+
 ### Command Arguments
 
 #### `jupyterlab-diff:split-cell-diff` (Split View)
