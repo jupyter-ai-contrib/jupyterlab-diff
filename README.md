@@ -38,7 +38,7 @@ The extension provides commands to show diffs in multiple formats:
 - `jupyterlab-diff:unified-cell-diff` - Show cell diff using unified view
 - `jupyterlab-diff:unified-file-diff` - Show file diff using unified view for regular Python files and other text files
 
-https://github.com/user-attachments/assets/0dacd7f0-5963-4ebe-81da-2958f0117071
+<https://github.com/user-attachments/assets/0dacd7f0-5963-4ebe-81da-2958f0117071>
 
 ### Programmatic Usage
 
@@ -82,7 +82,7 @@ The commands can also be run from the browser console (for example during develo
 
 First JupyterLab needs to be started with the `--expose-app-in-browser` flag to expose `window.jupyterapp`:
 
-```
+```bash
 jupyter lab --expose-app-in-browser
 ```
 
@@ -137,6 +137,17 @@ The extension provides two diff viewing strategies:
 - **Split diff** (`split-cell-diff`): Uses CodeMirror's two-pane view. Displays original and modified code side-by-side in separate panels with diff highlighting.
 
 - **Unified diff** (`unified-cell-diff`/`unified-file-diff`): Uses CodeMirror's `unifiedMergeView`. Displays changes in a single unified view with added/removed lines clearly marked. Can be used for both cell diffs and regular file diffs.
+
+## Contributing
+
+We welcome contributions from the community! To contribute:
+
+- Fork the repository
+- Make a development install of jupyterlab-diff
+- Create a new branch
+- Make your changes
+- Submit a pull request
+For more details, check out our [CONTRIBUTING.md](https://github.com/jupyter-ai-contrib/jupyterlab-diff?tab=contributing-ov-file#contributing).
 
 ## Uninstall
 
