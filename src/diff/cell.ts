@@ -106,7 +106,7 @@ export async function createCodeMirrorSplitDiffWidget(
     trans
   });
 
-  diffWidget.addClass('jupyterlab-cell-diff');
+  diffWidget.addClass('jupyterlab-diff');
   diffWidget.addToFooter();
 
   return diffWidget;

@@ -23,7 +23,7 @@ import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 /**
  * The translation namespace for the plugin.
  */
-const TRANSLATION_NAMESPACE = 'jupyterlab-cell-diff';
+const TRANSLATION_NAMESPACE = 'jupyterlab-diff';
 
 /**
  * Find a notebook by path using the notebook tracker
@@ -67,7 +67,7 @@ export function findCell(
  * Split cell diff plugin - shows side-by-side comparison
  */
 const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-cell-diff:split-cell-diff-plugin',
+  id: 'jupyterlab-diff:split-cell-diff-plugin',
   description: 'Show cell diff using side-by-side split view',
   requires: [ICellFooterTracker, INotebookTracker],
   optional: [ITranslator],
@@ -81,7 +81,7 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
     const { commands } = app;
     const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
 
-    commands.addCommand('jupyterlab-cell-diff:split-cell-diff', {
+    commands.addCommand('jupyterlab-diff:split-cell-diff', {
       label: trans.__('Show Cell Diff (Split View)'),
       describedBy: {
         args: {
@@ -177,7 +177,7 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
  * Unified cell diff plugin
  */
 const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-cell-diff:unified-cell-diff-plugin',
+  id: 'jupyterlab-diff:unified-cell-diff-plugin',
   description: 'Show cell diff using unified view',
   requires: [ICellFooterTracker, INotebookTracker],
   optional: [ITranslator],
@@ -194,7 +194,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
     // Track active unified diff managers to avoid creating duplicates
     const cellDiffManagers = new Map<string, UnifiedCellDiffManager>();
 
-    commands.addCommand('jupyterlab-cell-diff:unified-cell-diff', {
+    commands.addCommand('jupyterlab-diff:unified-cell-diff', {
       label: trans.__('Show Cell Diff (Unified)'),
       describedBy: {
         args: {
@@ -292,7 +292,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
  * Unified file diff plugin
  */
 const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-cell-diff:unified-file-diff-plugin',
+  id: 'jupyterlab-diff:unified-file-diff-plugin',
   description: 'Show file diff using unified view',
   requires: [IEditorTracker],
   optional: [ITranslator],
@@ -308,7 +308,7 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
     // Track active unified diff managers to avoid creating duplicates
     const fileDiffManagers = new Map<string, UnifiedFileDiffManager>();
 
-    commands.addCommand('jupyterlab-cell-diff:unified-file-diff', {
+    commands.addCommand('jupyterlab-diff:unified-file-diff', {
       label: trans.__('Diff File (Unified)'),
       describedBy: {
         args: {

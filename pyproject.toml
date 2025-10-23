@@ -39,8 +39,8 @@ artifacts = ["jupyterlab_cell_diff/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyterlab_cell_diff/labextension" = "share/jupyter/labextensions/jupyterlab-cell-diff"
-"install.json" = "share/jupyter/labextensions/jupyterlab-cell-diff/install.json"
+"jupyterlab_cell_diff/labextension" = "share/jupyter/labextensions/jupyterlab-diff"
+"install.json" = "share/jupyter/labextensions/jupyterlab-diff/install.json"
 
 [tool.hatch.build.hooks.version]
 path = "jupyterlab_cell_diff/_version.py"

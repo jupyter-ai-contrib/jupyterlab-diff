@@ -4,7 +4,7 @@ import { NotebookPanel } from '@jupyterlab/notebook';
 /**
  * The command to open the cell unified diff view.
  */
-const UNIFIED_CELL_DIFF_COMMAND = 'jupyterlab-cell-diff:unified-cell-diff';
+const UNIFIED_CELL_DIFF_COMMAND = 'jupyterlab-diff:unified-cell-diff';
 
 /**
  * Setup a notebook cell with unified diff view.

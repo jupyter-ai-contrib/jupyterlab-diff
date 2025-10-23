@@ -3,7 +3,7 @@ import { expect, IJupyterLabPageFixture, test } from '@jupyterlab/galata';
 /**
  * The command to open the file unified diff view.
  */
-const UNIFIED_FILE_DIFF_COMMAND = 'jupyterlab-cell-diff:unified-file-diff';
+const UNIFIED_FILE_DIFF_COMMAND = 'jupyterlab-diff:unified-file-diff';
 
 /**
  * Default name for new Python files.
