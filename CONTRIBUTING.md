@@ -10,7 +10,7 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the jupyterlab_cell_diff directory
+# Change directory to the jupyterlab_diff directory
 # Install package in development mode
 pip install -e "."
 # Link your development version of the extension with JupyterLab
@@ -40,7 +40,7 @@ jupyter lab build --minimize=False
 
 ```bash
 # Server extension must be manually disabled in develop mode
-pip uninstall jupyterlab_cell_diff
+pip uninstall jupyterlab_diff
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`

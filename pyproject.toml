@@ -3,7 +3,7 @@ requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0
 build-backend = "hatchling.build"
 
 [project]
-name = "jupyterlab_cell_diff"
+name = "jupyterlab_diff"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
@@ -35,24 +35,24 @@ source = "nodejs"
 fields = ["description", "authors", "urls", "keywords"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = ["jupyterlab_cell_diff/labextension"]
+artifacts = ["jupyterlab_diff/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyterlab_cell_diff/labextension" = "share/jupyter/labextensions/jupyterlab-diff"
+"jupyterlab_diff/labextension" = "share/jupyter/labextensions/jupyterlab-diff"
 "install.json" = "share/jupyter/labextensions/jupyterlab-diff/install.json"
 
 [tool.hatch.build.hooks.version]
-path = "jupyterlab_cell_diff/_version.py"
+path = "jupyterlab_diff/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
-    "jupyterlab_cell_diff/labextension/static/style.js",
-    "jupyterlab_cell_diff/labextension/package.json",
+    "jupyterlab_diff/labextension/static/style.js",
+    "jupyterlab_diff/labextension/package.json",
 ]
-skip-if-exists = ["jupyterlab_cell_diff/labextension/static/style.js"]
+skip-if-exists = ["jupyterlab_diff/labextension/static/style.js"]
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
@@ -62,7 +62,7 @@ npm = ["jlpm"]
 build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
-build_dir = "jupyterlab_cell_diff/labextension"
+build_dir = "jupyterlab_diff/labextension"
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"

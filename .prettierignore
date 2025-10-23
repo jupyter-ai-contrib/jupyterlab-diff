@@ -3,5 +3,5 @@ node_modules
 **/lib
 **/package.json
 !/package.json
-jupyterlab_cell_diff
+jupyterlab_diff
 .venv

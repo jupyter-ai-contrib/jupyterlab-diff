@@ -45,13 +45,13 @@ jobs:
 
           pip install build
           python -m build
-          pip uninstall -y "jupyterlab_cell_diff" jupyterlab
+          pip uninstall -y "jupyterlab_diff" jupyterlab
 
       - name: Upload extension packages
         uses: actions/upload-artifact@v4
         with:
           name: extension-artifacts
-          path: dist/jupyterlab_cell_diff*
+          path: dist/jupyterlab_diff*
           if-no-files-found: error
 
   test_isolated:
@@ -74,7 +74,7 @@ jobs:
           sudo rm -rf $(which node)
           sudo rm -rf $(which node)
 
-          pip install "jupyterlab>=4.0.0,<5" jupyterlab_cell_diff*.whl
+          pip install "jupyterlab>=4.0.0,<5" jupyterlab_diff*.whl
 
           jupyter labextension list
           jupyter labextension list 2>&1 | grep -ie "jupyterlab-diff.*OK"
