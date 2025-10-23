@@ -3591,9 +3591,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jupyterlab-cell-diff@workspace:.":
+"jupyterlab-cell-input-footer@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "jupyterlab-cell-input-footer@npm:0.3.0"
+  dependencies:
+    "@jupyterlab/services": ^7.0.0
+    "@lumino/coreutils": ^2.1.2
+  checksum: 88e8a420022a9228a09271f7b7e5ddc15f2bab9f9cf4e11541364a4060d8907ebdee2174efe0ecbbbdfa56d649fda25380e7a0f9d6dbe4d3486b3c0ab2e55a4c
+  languageName: node
+  linkType: hard
+
+"jupyterlab-diff@workspace:.":
   version: 0.0.0-use.local
-  resolution: "jupyterlab-cell-diff@workspace:."
+  resolution: "jupyterlab-diff@workspace:."
   dependencies:
     "@codemirror/lang-python": ^6.2.1
     "@codemirror/merge": ^6.11.0
@@ -3637,16 +3647,6 @@ __metadata:
     yjs: ^13.5.0
   languageName: unknown
   linkType: soft
-
-"jupyterlab-cell-input-footer@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "jupyterlab-cell-input-footer@npm:0.3.0"
-  dependencies:
-    "@jupyterlab/services": ^7.0.0
-    "@lumino/coreutils": ^2.1.2
-  checksum: 88e8a420022a9228a09271f7b7e5ddc15f2bab9f9cf4e11541364a4060d8907ebdee2174efe0ecbbbdfa56d649fda25380e7a0f9d6dbe4d3486b3c0ab2e55a4c
-  languageName: node
-  linkType: hard
 
 "keyv@npm:^4.5.3":
   version: 4.5.4
