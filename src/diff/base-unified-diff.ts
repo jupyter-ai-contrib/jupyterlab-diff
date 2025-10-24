@@ -123,17 +123,20 @@ export abstract class BaseUnifiedDiffManager {
   /**
    * Accept all changes
    */
-  protected acceptAll(): void {
-    // simply accept the current state
+  public acceptAll(): void {
+    const sharedModel = this.getSharedModel();
+    this._originalSource = sharedModel.getSource();
+    this._newSource = this._originalSource;
     this._deactivate();
   }
 
   /**
    * Reject all changes
    */
-  protected rejectAll(): void {
+  public rejectAll(): void {
     const sharedModel = this.getSharedModel();
     sharedModel.setSource(this._originalSource);
+    this._newSource = this._originalSource;
     this._deactivate();
   }
 
@@ -172,9 +175,9 @@ export abstract class BaseUnifiedDiffManager {
   protected showActionButtons: boolean;
   protected acceptAllButton: ToolbarButton | null = null;
   protected rejectAllButton: ToolbarButton | null = null;
-  private _originalSource: string;
   private _newSource: string;
   private _isInitialized: boolean;
   private _isDisposed: boolean;
   private _diffCompartment: Compartment;
+  public _originalSource: string;
 }

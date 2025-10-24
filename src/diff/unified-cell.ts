@@ -33,7 +33,15 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     super(options);
     this._cell = options.cell;
     this._cellFooterTracker = options.cellFooterTracker;
+    this._originalSource = options.originalSource ?? '';
     this.activate();
+  }
+
+  /**
+   * Check if this cell still has pending changes
+   */
+  public hasPendingChanges(): boolean {
+    return this._originalSource !== this._cell.sharedModel.getSource();
   }
 
   /**
@@ -51,6 +59,11 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       return;
     }
 
+    if (!this.hasPendingChanges()) {
+      this.removeToolbarButtons();
+      return;
+    }
+
     const cellId = this._cell.id;
     const footer = this._cellFooterTracker.getFooter(cellId);
     if (!footer) {
@@ -59,19 +72,17 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
 
     this.acceptAllButton = new ToolbarButton({
       icon: checkIcon,
-      label: this.trans.__('Accept All'),
-      tooltip: this.trans.__('Accept all chunks'),
+      label: this.trans.__('Accept'),
+      tooltip: this.trans.__('Accept changes in this cell'),
       enabled: true,
-      className: 'jp-UnifiedDiff-acceptAll',
       onClick: () => this.acceptAll()
     });
 
     this.rejectAllButton = new ToolbarButton({
       icon: undoIcon,
-      label: this.trans.__('Reject All'),
-      tooltip: this.trans.__('Reject all chunks'),
+      label: this.trans.__('Reject'),
+      tooltip: this.trans.__('Reject changes in this cell'),
       enabled: true,
-      className: 'jp-UnifiedDiff-rejectAll',
       onClick: () => this.rejectAll()
     });
 

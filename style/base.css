@@ -77,3 +77,34 @@
   background-color: var(--jp-layout-color3);
   border-color: var(--jp-border-color1);
 }
+
+.jp-ToolbarButtonComponent.accept-all-changes {
+  background-color: #28a745;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.jp-ToolbarButtonComponent.accept-all-changes:hover {
+  background-color: #058522;
+}
+
+.jp-ToolbarButtonComponent.reject-all-changes {
+  background-color: #dc3545;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.jp-ToolbarButtonComponent.reject-all-changes:hover {
+  background-color: #c82333;
+}

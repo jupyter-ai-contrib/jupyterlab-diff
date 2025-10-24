@@ -19,6 +19,7 @@ import {
   UnifiedFileDiffManager
 } from './diff/unified-file';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { ToolbarButton } from '@jupyterlab/ui-components';
 
 /**
  * The translation namespace for the plugin.
@@ -61,6 +62,29 @@ export function findCell(
   }
 
   return cell ?? null;
+}
+
+/**
+ * Registry for notebook-level diff managers
+ */
+const notebookDiffRegistry = new Map<string, UnifiedCellDiffManager[]>();
+
+let registerCellManager = (
+  notebookId: string,
+  manager: UnifiedCellDiffManager
+): void => {
+  if (!notebookDiffRegistry.has(notebookId)) {
+    notebookDiffRegistry.set(notebookId, []);
+  }
+  notebookDiffRegistry.get(notebookId)!.push(manager);
+};
+
+function getNotebookManagers(notebookId: string) {
+  return notebookDiffRegistry.get(notebookId) || [];
+}
+
+function clearNotebookManagers(notebookId: string) {
+  notebookDiffRegistry.delete(notebookId);
 }
 
 /**
@@ -283,7 +307,68 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           trans
         });
         cellDiffManagers.set(cell.id, manager);
+
+        registerCellManager(currentNotebook.id, manager);
       }
+    });
+    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
+      const notebookId = notebookPanel.id;
+
+      let acceptAllButton: ToolbarButton | null = null;
+      let rejectAllButton: ToolbarButton | null = null;
+
+      function updateToolbar() {
+        const managers = getNotebookManagers(notebookId);
+
+        const anyPending = managers.some(m => m.hasPendingChanges());
+        if (!anyPending) {
+          if (acceptAllButton) {
+            acceptAllButton.dispose();
+          }
+          if (rejectAllButton) {
+            rejectAllButton.dispose();
+          }
+          acceptAllButton = null;
+          rejectAllButton = null;
+          return;
+        }
+
+        if (!acceptAllButton) {
+          acceptAllButton = new ToolbarButton({
+            label: trans.__('Accept All'),
+            className: 'accept-all-changes',
+            tooltip: trans.__('Accept all changes in this notebook'),
+            onClick: () => {
+              getNotebookManagers(notebookId).forEach(m => m.acceptAll());
+              updateToolbar();
+            }
+          });
+          notebookPanel.toolbar.addItem('accept-all-changes', acceptAllButton);
+        }
+
+        if (!rejectAllButton) {
+          rejectAllButton = new ToolbarButton({
+            label: trans.__('Reject All'),
+            className: 'reject-all-changes',
+            tooltip: trans.__('Reject all changes in this notebook'),
+            onClick: () => {
+              getNotebookManagers(notebookId).forEach(m => m.rejectAll());
+              updateToolbar();
+            }
+          });
+          notebookPanel.toolbar.addItem('reject-all-changes', rejectAllButton);
+        }
+      }
+
+      notebookPanel.disposed.connect(() => clearNotebookManagers(notebookId));
+      notebookPanel.node.addEventListener('diff-updated', updateToolbar);
+
+      const originalRegister = registerCellManager;
+      registerCellManager = (nid: string, manager: UnifiedCellDiffManager) => {
+        originalRegister(nid, manager);
+        const event = new Event('diff-updated');
+        notebookPanel.node.dispatchEvent(event);
+      };
     });
   }
 };
