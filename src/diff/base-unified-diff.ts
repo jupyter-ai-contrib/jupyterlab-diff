@@ -91,19 +91,31 @@ export abstract class BaseUnifiedDiffManager {
   protected abstract removeToolbarButtons(): void;
 
   /**
+   * Hook to hide the cell toolbar — overridden in subclasses
+   */
+  protected hideCellToolbar(): void {}
+
+  /**
+   * Hook to show the cell toolbar — overridden in subclasses
+   */
+  protected showCellToolbar(): void {}
+
+  /**
    * Activate the diff view
    */
   protected activate(): void {
     this._applyDiff();
     this.addToolbarButtons();
+    this.hideCellToolbar();
   }
 
   /**
    * Deactivate the diff view
    */
-  private _deactivate(): void {
+  protected _deactivate(): void {
     this.removeToolbarButtons();
     this._cleanupEditor();
+    this.showCellToolbar();
   }
 
   /**
