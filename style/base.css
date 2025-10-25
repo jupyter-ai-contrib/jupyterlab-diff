@@ -78,33 +78,47 @@
   border-color: var(--jp-border-color1);
 }
 
-.jp-ToolbarButtonComponent.accept-all-changes {
-  background-color: #28a745;
-  cursor: pointer;
-  padding: 2px 8px;
+/* Floating unified-cell-diff control panel */
+.jp-unified-diff-floating-panel {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  gap: 12px;
+  background: var(--jp-layout-color1);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  z-index: 200;
+  opacity: 0.95;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.jp-unified-diff-floating-panel .jp-merge-accept-button,
+.jp-unified-diff-floating-panel .jp-merge-reject-button {
+  padding: 12px 10px;
+  font-size: 13px;
   border-radius: 4px;
-  font-size: 12px;
-  transition:
-    background-color 0.2s,
-    border-color 0.2s;
-}
-
-.jp-ToolbarButtonComponent.accept-all-changes:hover {
-  background-color: #058522;
-}
-
-.jp-ToolbarButtonComponent.reject-all-changes {
-  background-color: #dc3545;
   cursor: pointer;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
-  transition:
-    background-color 0.2s,
-    border-color 0.2s;
+  color: white;
+  font-weight: inherit;
+  border: none;
+  transition: background-color 0.2s ease-in-out;
 }
 
-.jp-ToolbarButtonComponent.reject-all-changes:hover {
-  background-color: #c82333;
+.jp-unified-diff-floating-panel .jp-merge-accept-button {
+  background-color: #089e03;
+}
+
+.jp-unified-diff-floating-panel .jp-merge-accept-button:hover {
+  background-color: #027e1d;
+}
+
+.jp-unified-diff-floating-panel .jp-merge-reject-button {
+  background-color: #b80606;
+}
+
+.jp-unified-diff-floating-panel .jp-merge-reject-button:hover {
+  background-color: #8f0505;
 }

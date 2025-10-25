@@ -19,7 +19,6 @@ import {
   UnifiedFileDiffManager
 } from './diff/unified-file';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { ToolbarButton } from '@jupyterlab/ui-components';
 
 /**
  * The translation namespace for the plugin.
@@ -314,54 +313,62 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
       const notebookId = notebookPanel.id;
 
-      let acceptAllButton: ToolbarButton | null = null;
-      let rejectAllButton: ToolbarButton | null = null;
+      let floatingPanel: HTMLElement | null = null;
 
-      function updateToolbar() {
+      function createFloatingPanel(): HTMLElement {
+        const panel = document.createElement('div');
+        panel.classList.add('jp-unified-diff-floating-panel');
+
+        const acceptButton = document.createElement('button');
+        acceptButton.classList.add('jp-merge-accept-button');
+        acceptButton.textContent = 'Accept All';
+        acceptButton.title = trans.__('Accept all changes in this notebook');
+        acceptButton.onclick = () => {
+          getNotebookManagers(notebookId).forEach(m => m.acceptAll());
+          updateFloatingPanel();
+        };
+
+        const rejectButton = document.createElement('button');
+        rejectButton.classList.add('jp-merge-reject-button');
+        rejectButton.textContent = 'Reject All';
+        rejectButton.title = trans.__('Reject all changes in this notebook');
+        rejectButton.onclick = () => {
+          getNotebookManagers(notebookId).forEach(m => m.rejectAll());
+          updateFloatingPanel();
+        };
+
+        panel.appendChild(acceptButton);
+        panel.appendChild(rejectButton);
+        return panel;
+      }
+
+      function updateFloatingPanel(): void {
         const managers = getNotebookManagers(notebookId);
-
         const anyPending = managers.some(m => m.hasPendingChanges());
+
         if (!anyPending) {
-          if (acceptAllButton) {
-            acceptAllButton.dispose();
+          if (floatingPanel && floatingPanel.parentElement) {
+            floatingPanel.parentElement.removeChild(floatingPanel);
           }
-          if (rejectAllButton) {
-            rejectAllButton.dispose();
-          }
-          acceptAllButton = null;
-          rejectAllButton = null;
+          floatingPanel = null;
           return;
         }
 
-        if (!acceptAllButton) {
-          acceptAllButton = new ToolbarButton({
-            label: trans.__('Accept All'),
-            className: 'accept-all-changes',
-            tooltip: trans.__('Accept all changes in this notebook'),
-            onClick: () => {
-              getNotebookManagers(notebookId).forEach(m => m.acceptAll());
-              updateToolbar();
-            }
-          });
-          notebookPanel.toolbar.addItem('accept-all-changes', acceptAllButton);
-        }
-
-        if (!rejectAllButton) {
-          rejectAllButton = new ToolbarButton({
-            label: trans.__('Reject All'),
-            className: 'reject-all-changes',
-            tooltip: trans.__('Reject all changes in this notebook'),
-            onClick: () => {
-              getNotebookManagers(notebookId).forEach(m => m.rejectAll());
-              updateToolbar();
-            }
-          });
-          notebookPanel.toolbar.addItem('reject-all-changes', rejectAllButton);
+        if (!floatingPanel) {
+          floatingPanel = createFloatingPanel();
+          notebookPanel.node.appendChild(floatingPanel);
         }
       }
 
-      notebookPanel.disposed.connect(() => clearNotebookManagers(notebookId));
-      notebookPanel.node.addEventListener('diff-updated', updateToolbar);
+      notebookPanel.disposed.connect(() => {
+        clearNotebookManagers(notebookId);
+        if (floatingPanel && floatingPanel.parentElement) {
+          floatingPanel.parentElement.removeChild(floatingPanel);
+        }
+        floatingPanel = null;
+      });
+
+      notebookPanel.node.addEventListener('diff-updated', updateFloatingPanel);
 
       const originalRegister = registerCellManager;
       registerCellManager = (nid: string, manager: UnifiedCellDiffManager) => {
