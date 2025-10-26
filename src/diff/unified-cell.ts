@@ -1,4 +1,4 @@
-import { ICellModel } from '@jupyterlab/cells';
+import { Cell } from '@jupyterlab/cells';
 import { checkIcon, ToolbarButton, undoIcon } from '@jupyterlab/ui-components';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
 import {
@@ -12,9 +12,9 @@ import type { ISharedText } from '@jupyter/ydoc';
  */
 export interface IUnifiedCellDiffOptions extends IBaseUnifiedDiffOptions {
   /**
-   * The cell to show the diff for
+   * The cell widget to show the diff for
    */
-  cell: ICellModel;
+  cell: Cell;
 
   /**
    * The cell footer tracker
@@ -37,6 +37,8 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     this.activate();
   }
 
+  private static _activeDiffCount = 0;
+
   /**
    * Check if this cell still has pending changes
    */
@@ -48,7 +50,66 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
    * Get the shared model for source manipulation
    */
   protected getSharedModel(): ISharedText {
-    return this._cell.sharedModel;
+    return this._cell.model.sharedModel;
+  }
+
+  /**
+   * Activate the diff view without cell toolbar.
+   */
+  protected activate(): void {
+    super.activate();
+    UnifiedCellDiffManager._activeDiffCount++;
+
+    const observer = new MutationObserver(() => {
+      this.hideCellToolbar();
+    });
+
+    observer.observe(this._cell.node, {
+      childList: true,
+      subtree: true
+    });
+
+    (this as any)._toolbarObserver = observer;
+  }
+
+  /**
+   * Deactivate the diff view with cell toolbar.
+   */
+  protected _deactivate(): void {
+    super['_deactivate']();
+    UnifiedCellDiffManager._activeDiffCount = Math.max(
+      0,
+      UnifiedCellDiffManager._activeDiffCount - 1
+    );
+
+    const observer = (this as any)._toolbarObserver as MutationObserver;
+    if (observer) {
+      observer.disconnect();
+    }
+  }
+  /**
+   * Hide the cell's toolbar while the diff is active
+   */
+  protected hideCellToolbar(): void {
+    const toolbar = this._cell.node.querySelector('jp-toolbar') as HTMLElement;
+    if (toolbar) {
+      toolbar.style.display = 'none';
+    }
+  }
+
+  /**
+   * Show the cell's toolbar when the diff is deactivated
+   */
+  protected showCellToolbar(): void {
+    if (UnifiedCellDiffManager._activeDiffCount > 0) {
+      return;
+    }
+    const toolbar = this._cell.node.querySelector(
+      'jp-toolbar'
+    ) as HTMLElement | null;
+    if (toolbar) {
+      toolbar.style.display = '';
+    }
   }
 
   /**
@@ -92,6 +153,9 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     }
 
     this._cellFooterTracker.showFooter(cellId);
+
+    // Hide the main cell toolbar to avoid overlap
+    this.hideCellToolbar();
   }
 
   /**
@@ -115,9 +179,12 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
 
     // Hide the footer if no other items remain
     this._cellFooterTracker.hideFooter(cellId);
+
+    // Show the main cell toolbar again
+    this.showCellToolbar();
   }
 
-  private _cell: ICellModel;
+  private _cell: Cell;
   private _cellFooterTracker?: ICellFooterTracker;
 }
 

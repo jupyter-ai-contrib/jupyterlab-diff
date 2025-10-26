@@ -297,7 +297,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
 
         // Create a new manager
         const manager = await createUnifiedCellDiffView({
-          cell,
+          cell: cellWidget,
           editor: cellWidget.editor as CodeMirrorEditor,
           cellFooterTracker,
           originalSource,

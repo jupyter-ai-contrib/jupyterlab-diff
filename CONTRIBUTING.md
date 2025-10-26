@@ -1,6 +1,6 @@
-## Contributing
+# Contributing
 
-### Development install
+## Development install
 
 Note: You will need NodeJS to build the extension package.
 
@@ -36,7 +36,7 @@ By default, the `jlpm build` command generates the source maps for this extensio
 jupyter lab build --minimize=False
 ```
 
-### Development uninstall
+## Development uninstall
 
 ```bash
 # Server extension must be manually disabled in develop mode
