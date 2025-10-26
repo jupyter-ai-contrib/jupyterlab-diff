@@ -87,7 +87,7 @@
   gap: 12px;
   background: var(--jp-layout-color1);
   border: 1px solid var(--jp-border-color2);
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 8px 12px;
   box-shadow: 0 2px 8px #00000040;
   z-index: 200;
@@ -101,24 +101,25 @@
   font-size: 13px;
   border-radius: 4px;
   cursor: pointer;
-  color: white;
   font-weight: inherit;
   border: none;
   transition: background-color 0.2s ease-in-out;
 }
 
 .jp-unified-diff-floating-panel .jp-merge-accept-button {
-  background-color: #089e03;
+  background-color: var(--jp-success-color1);
+  color: var(--jp-ui-inverse-font-color0);
 }
 
 .jp-unified-diff-floating-panel .jp-merge-accept-button:hover {
-  background-color: #027e1d;
+  background-color: var(--jp-success-color0);
 }
 
 .jp-unified-diff-floating-panel .jp-merge-reject-button {
-  background-color: #b80606;
+  background-color: var(--jp-error-color1);
+  color: var(--jp-ui-inverse-font-color0);
 }
 
 .jp-unified-diff-floating-panel .jp-merge-reject-button:hover {
-  background-color: #8f0505;
+  background-color: var(--jp-error-color0);
 }
