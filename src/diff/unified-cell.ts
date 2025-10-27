@@ -77,13 +77,17 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
 
     if (this._toolbarObserver) {
       this._toolbarObserver.disconnect();
+      this._toolbarObserver = undefined;
     }
   }
+
   /**
    * Hide the cell's toolbar while the diff is active
    */
   protected hideCellToolbar(): void {
-    const toolbar = this._cell.node.querySelector('jp-toolbar') as HTMLElement;
+    const toolbar = this._cell.node.querySelector(
+      'jp-toolbar'
+    ) as HTMLElement | null;
     if (toolbar) {
       toolbar.style.display = 'none';
     }
