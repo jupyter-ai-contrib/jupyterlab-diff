@@ -43,7 +43,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
    * Check if this cell still has pending changes
    */
   public hasPendingChanges(): boolean {
-    return this._originalSource !== this._cell.sharedModel.getSource();
+    return this._originalSource !== this._cell.model.sharedModel.getSource();
   }
 
   /**
@@ -125,7 +125,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       return;
     }
 
-    const cellId = this._cell.id;
+    const cellId = this._cell.model.id;
     const footer = this._cellFooterTracker.getFooter(cellId);
     if (!footer) {
       return;
@@ -166,7 +166,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       return;
     }
 
-    const cellId = this._cell.id;
+    const cellId = this._cell.model.id;
     const footer = this._cellFooterTracker.getFooter(cellId);
     if (!footer) {
       return;
