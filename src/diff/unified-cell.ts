@@ -37,6 +37,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
   }
 
   private static _activeDiffCount = 0;
+  private _toolbarObserver?: MutationObserver;
 
   /**
    * Get the shared model for source manipulation
@@ -61,22 +62,21 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       subtree: true
     });
 
-    (this as any)._toolbarObserver = observer;
+    this._toolbarObserver = observer;
   }
 
   /**
    * Deactivate the diff view with cell toolbar.
    */
-  protected _deactivate(): void {
-    super['_deactivate']();
+  protected deactivate(): void {
+    super.deactivate();
     UnifiedCellDiffManager._activeDiffCount = Math.max(
       0,
       UnifiedCellDiffManager._activeDiffCount - 1
     );
 
-    const observer = (this as any)._toolbarObserver as MutationObserver;
-    if (observer) {
-      observer.disconnect();
+    if (this._toolbarObserver) {
+      this._toolbarObserver.disconnect();
     }
   }
   /**
