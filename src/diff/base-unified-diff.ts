@@ -69,7 +69,7 @@ export abstract class BaseUnifiedDiffManager {
       return;
     }
     this._isDisposed = true;
-    this._deactivate();
+    this.deactivate();
   }
 
   /**
@@ -112,7 +112,7 @@ export abstract class BaseUnifiedDiffManager {
   /**
    * Deactivate the diff view
    */
-  protected _deactivate(): void {
+  protected deactivate(): void {
     this.removeToolbarButtons();
     this._cleanupEditor();
     this.showCellToolbar();
@@ -137,7 +137,7 @@ export abstract class BaseUnifiedDiffManager {
    */
   protected acceptAll(): void {
     // simply accept the current state
-    this._deactivate();
+    this.deactivate();
   }
 
   /**
@@ -146,7 +146,7 @@ export abstract class BaseUnifiedDiffManager {
   protected rejectAll(): void {
     const sharedModel = this.getSharedModel();
     sharedModel.setSource(this._originalSource);
-    this._deactivate();
+    this.deactivate();
   }
 
   /**
@@ -166,7 +166,7 @@ export abstract class BaseUnifiedDiffManager {
       newSource: this._newSource,
       isInitialized: this._isInitialized,
       sharedModel: this.getSharedModel(),
-      onChunkChange: () => this._deactivate()
+      onChunkChange: () => this.deactivate()
     });
 
     this._isInitialized = true;
