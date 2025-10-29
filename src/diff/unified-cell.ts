@@ -1,4 +1,4 @@
-import { Cell } from '@jupyterlab/cells';
+import { Cell, MarkdownCell } from '@jupyterlab/cells';
 import { checkIcon, ToolbarButton, undoIcon } from '@jupyterlab/ui-components';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
 import {
@@ -38,6 +38,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
 
   private static _activeDiffCount = 0;
   private _toolbarObserver?: MutationObserver;
+  private _wasRendered = false;
 
   /**
    * Get the shared model for source manipulation
@@ -50,6 +51,15 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
    * Activate the diff view without cell toolbar.
    */
   protected activate(): void {
+    const { model } = this._cell;
+    if (model.type === 'markdown') {
+      const md = this._cell as MarkdownCell;
+      if (md.rendered) {
+        this._wasRendered = true;
+        md.rendered = false;
+      }
+    }
+
     super.activate();
     UnifiedCellDiffManager._activeDiffCount++;
 
@@ -74,6 +84,11 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       0,
       UnifiedCellDiffManager._activeDiffCount - 1
     );
+
+    if (this._wasRendered && this._cell.model.type === 'markdown') {
+      (this._cell as MarkdownCell).rendered = true;
+      this._wasRendered = false;
+    }
 
     if (this._toolbarObserver) {
       this._toolbarObserver.disconnect();
