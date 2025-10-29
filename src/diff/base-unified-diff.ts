@@ -135,7 +135,7 @@ export abstract class BaseUnifiedDiffManager {
   /**
    * Accept all changes
    */
-  protected acceptAll(): void {
+  public acceptAll(): void {
     // simply accept the current state
     this.deactivate();
   }
