@@ -38,6 +38,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
   }
 
   private static _activeDiffCount = 0;
+  private _toolbarObserver?: MutationObserver;
 
   /**
    * Check if this cell still has pending changes
@@ -69,29 +70,32 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       subtree: true
     });
 
-    (this as any)._toolbarObserver = observer;
+    this._toolbarObserver = observer;
   }
 
   /**
    * Deactivate the diff view with cell toolbar.
    */
-  protected _deactivate(): void {
-    super['_deactivate']();
+  protected deactivate(): void {
+    super.deactivate();
     UnifiedCellDiffManager._activeDiffCount = Math.max(
       0,
       UnifiedCellDiffManager._activeDiffCount - 1
     );
 
-    const observer = (this as any)._toolbarObserver as MutationObserver;
-    if (observer) {
-      observer.disconnect();
+    if (this._toolbarObserver) {
+      this._toolbarObserver.disconnect();
+      this._toolbarObserver = undefined;
     }
   }
+
   /**
    * Hide the cell's toolbar while the diff is active
    */
   protected hideCellToolbar(): void {
-    const toolbar = this._cell.node.querySelector('jp-toolbar') as HTMLElement;
+    const toolbar = this._cell.node.querySelector(
+      'jp-toolbar'
+    ) as HTMLElement | null;
     if (toolbar) {
       toolbar.style.display = 'none';
     }
