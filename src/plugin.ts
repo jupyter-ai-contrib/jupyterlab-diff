@@ -218,6 +218,12 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
                 'Whether to show action buttons for chunk acceptance'
               )
             },
+            allowInlineDiffs: {
+              type: 'boolean',
+              description: trans.__(
+                'Enable inline diffs (true) or disable (false)'
+              )
+            },
             notebookPath: {
               type: 'string',
               description: trans.__('Path to the notebook containing the cell')
@@ -232,6 +238,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           originalSource,
           newSource,
           showActionButtons = true,
+          allowInlineDiffs = false,
           notebookPath
         } = args;
 
@@ -280,6 +287,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           originalSource,
           newSource,
           showActionButtons,
+          allowInlineDiffs,
           trans
         });
         cellDiffManagers.set(cell.id, manager);
