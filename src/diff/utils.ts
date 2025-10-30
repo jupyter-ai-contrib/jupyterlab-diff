@@ -40,9 +40,7 @@ export function createMergeExtension(
 ): Extension {
   return unifiedMergeView({
     original: originalSource,
-    ...options,
-    // TODO: make configurable
-    // allowInlineDiffs: true,
+    allowInlineDiffs: options?.allowInlineDiffs ?? false,
     mergeControls: (
       type: 'accept' | 'reject',
       action: (e: MouseEvent) => void
@@ -98,6 +96,11 @@ export interface IApplyDiffOptions {
    * Optional callback when chunks are resolved
    */
   onChunkChange?: () => void;
+
+  /**
+   * Whether to allow inline diffs
+   */
+  allowInlineDiffs?: boolean;
 }
 
 /**
@@ -111,10 +114,13 @@ export function applyDiff(options: IApplyDiffOptions): void {
     newSource,
     isInitialized,
     sharedModel,
-    onChunkChange
+    onChunkChange,
+    allowInlineDiffs = false
   } = options;
 
-  const mergeExtension = createMergeExtension(originalSource);
+  const mergeExtension = createMergeExtension(originalSource, {
+    allowInlineDiffs
+  });
 
   // Create an update listener to track chunk resolution
   const updateListener = EditorView.updateListener.of(update => {
