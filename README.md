@@ -61,7 +61,8 @@ app.commands.execute('jupyterlab-diff:unified-cell-diff', {
   cellId: 'cell-id',
   originalSource: 'print("Hello")',
   newSource: 'print("Hello, World!")',
-  showActionButtons: true
+  showActionButtons: true,
+  allowInlineDiffs: false
 });
 ```
 
@@ -72,7 +73,8 @@ app.commands.execute('jupyterlab-diff:unified-file-diff', {
   filePath: '/path/to/file.py',
   originalSource: 'print("Hello")',
   newSource: 'print("Hello, World!")',
-  showActionButtons: true
+  showActionButtons: true,
+  allowInlineDiffs: false
 });
 ```
 
@@ -117,6 +119,7 @@ window.jupyterapp.commands.execute('jupyterlab-diff:split-cell-diff', {
 | `originalSource`    | `string`  | Yes      | Original source code to compare against                                              |
 | `newSource`         | `string`  | Yes      | New source code to compare with                                                      |
 | `showActionButtons` | `boolean` | No       | Whether to show action buttons for chunk acceptance (default: `true`)                |
+| `allowInlineDiffs`  | `boolean` | No       | Whether to show inline diffs in the diff widget (default: `false`)                   |
 | `notebookPath`      | `string`  | No       | Path to the notebook containing the cell. If not provided, uses the current notebook |
 
 #### `jupyterlab-diff:unified-file-diff` (File Diff)
@@ -127,6 +130,7 @@ window.jupyterapp.commands.execute('jupyterlab-diff:split-cell-diff', {
 | `originalSource`    | `string`  | Yes      | Original source code to compare against                               |
 | `newSource`         | `string`  | Yes      | New source code to compare with                                       |
 | `showActionButtons` | `boolean` | No       | Whether to show action buttons for chunk acceptance (default: `true`) |
+| `allowInlineDiffs`  | `boolean` | No       | Whether to show inline diffs in the diff widget (default: `false`)    |
 
 ## Architecture
 

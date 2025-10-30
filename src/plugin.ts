@@ -341,6 +341,12 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
               description: trans.__(
                 'Whether to show action buttons for chunk acceptance. Defaults to true.'
               )
+            },
+            allowInlineDiffs: {
+              type: 'boolean',
+              description: trans.__(
+                'Enable inline diffs (true) or disable (false)'
+              )
             }
           },
           required: ['originalSource', 'newSource']
@@ -351,7 +357,8 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           filePath,
           originalSource,
           newSource,
-          showActionButtons = true
+          showActionButtons = true,
+          allowInlineDiffs = false
         } = args;
 
         if (!originalSource || !newSource) {
@@ -407,6 +414,7 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           originalSource,
           newSource,
           showActionButtons,
+          allowInlineDiffs,
           trans
         });
         fileDiffManagers.set(managerKey, manager);
