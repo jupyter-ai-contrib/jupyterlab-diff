@@ -61,8 +61,7 @@ app.commands.execute('jupyterlab-diff:unified-cell-diff', {
   cellId: 'cell-id',
   originalSource: 'print("Hello")',
   newSource: 'print("Hello, World!")',
-  showActionButtons: true,
-  allowInlineDiffs: false
+  showActionButtons: true
 });
 ```
 
@@ -73,8 +72,7 @@ app.commands.execute('jupyterlab-diff:unified-file-diff', {
   filePath: '/path/to/file.py',
   originalSource: 'print("Hello")',
   newSource: 'print("Hello, World!")',
-  showActionButtons: true,
-  allowInlineDiffs: false
+  showActionButtons: true
 });
 ```
 
