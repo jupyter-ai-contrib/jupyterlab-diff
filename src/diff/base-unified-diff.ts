@@ -137,6 +137,8 @@ export abstract class BaseUnifiedDiffManager {
    */
   public acceptAll(): void {
     // simply accept the current state
+    const sharedModel = this.getSharedModel();
+    this._originalSource = sharedModel.getSource();
     this.deactivate();
   }
 
