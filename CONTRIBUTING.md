@@ -36,6 +36,10 @@ By default, the `jlpm build` command generates the source maps for this extensio
 jupyter lab build --minimize=False
 ```
 
+## Testing locally the extension
+
+See [Test](https://github.com/jupyter-ai-contrib/jupyterlab-diff/tree/main/ui-tests#readme)
+
 ## Development uninstall
 
 ```bash
