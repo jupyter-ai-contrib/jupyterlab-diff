@@ -423,8 +423,112 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
+/**
+ * Split file diff plugin (side-by-side)
+ */
+const splitFileDiffPlugin: JupyterFrontEndPlugin<void> = {
+  id: 'jupyterlab-diff:split-file-diff-plugin',
+  description: 'Show file diff using side-by-side split view',
+  requires: [IEditorTracker],
+  optional: [ITranslator],
+  autoStart: true,
+  activate: async (
+    app: JupyterFrontEnd,
+    editorTracker: IEditorTracker,
+    translator: ITranslator | null
+  ) => {
+    const { commands } = app;
+    const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
+
+    commands.addCommand('jupyterlab-diff:split-file-diff', {
+      label: trans.__('Diff File (Split view)'),
+      describedBy: {
+        args: {
+          type: 'object',
+          properties: {
+            filePath: {
+              type: 'string',
+              description: trans.__(
+                'Path to the file to diff. Defaults to current file in editor.'
+              )
+            },
+            originalSource: {
+              type: 'string',
+              description: trans.__('Original source code to compare against')
+            },
+            newSource: {
+              type: 'string',
+              description: trans.__('New source code to compare with')
+            },
+            openDiff: {
+              type: 'boolean',
+              description: trans.__('Whether to open the diff automatically')
+            }
+          },
+          required: ['originalSource', 'newSource']
+        }
+      },
+      execute: async (args: any = {}) => {
+        const { filePath, originalSource, newSource, openDiff = true } = args;
+
+        if (!originalSource || !newSource) {
+          console.error(
+            trans.__('Missing required arguments: originalSource and newSource')
+          );
+          return;
+        }
+
+        // Resolve the file editor widget: prefer the one matching filePath if provided.
+        let fileEditorWidget = editorTracker.currentWidget;
+        if (filePath) {
+          const found = editorTracker.find(widget => {
+            return widget.context?.path === filePath;
+          });
+          if (found) {
+            fileEditorWidget = found;
+          }
+        }
+
+        if (!fileEditorWidget) {
+          console.error(trans.__('No editor found for the file'));
+          return;
+        }
+
+        // Grab the CodeMirrorEditor instance from the FileEditor content
+        // FileEditor.content.editor should be the underlying editor instance.
+        const editor = fileEditorWidget.content
+          .editor as any as CodeMirrorEditor;
+        if (!editor) {
+          console.error(trans.__('No code editor found in the file widget'));
+          return;
+        }
+
+        // Create the split widget and add to main area
+        const { createCodeMirrorSplitFileWidget } = await import('./diff/file');
+
+        const widget = await createCodeMirrorSplitFileWidget({
+          fileEditorWidget,
+          editor,
+          originalSource,
+          newSource,
+          trans,
+          openDiff
+        });
+
+        widget.id = `jp-split-file-diff-${Date.now()}`;
+        widget.title.label = `Split Diff: ${fileEditorWidget.title.label}`;
+        widget.title.closable = true;
+
+        app.shell.add(widget, 'main');
+        app.shell.activateById(widget.id);
+      }
+    });
+  }
+};
+
 export default [
   splitCellDiffPlugin,
   unifiedCellDiffPlugin,
-  unifiedFileDiffPlugin
+  unifiedFileDiffPlugin,
+  splitFileDiffPlugin
 ];

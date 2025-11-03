@@ -77,3 +77,38 @@
   background-color: var(--jp-layout-color3);
   border-color: var(--jp-border-color1);
 }
+
+/* Root container: allow layout to flex & scroll correctly */
+.jp-SplitFileDiffView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+  background-color: var(--jp-layout-color0);
+  color: var(--jp-ui-font-color1);
+}
+
+/* Scroll container: hosts the side-by-side MergeView */
+.jp-SplitDiff-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* CodeMirror internal scroll area */
+.jp-SplitDiff-scroll .cm-scroller {
+  height: 100%;
+  overflow: auto;
+}
+
+/* Allow editor to shrink instead of expanding infinitely */
+.jp-SplitDiff-scroll .cm-editor {
+  min-height: 0;
+}
+
+/* Optional: line wrapping styling for readability on narrow layouts */
+.jp-SplitDiff-scroll .cm-content {
+  white-space: pre;
+}
