@@ -108,7 +108,46 @@
   min-height: 0;
 }
 
-/* Optional: line wrapping styling for readability on narrow layouts */
-.jp-SplitDiff-scroll .cm-content {
-  white-space: pre;
+.jp-SplitFileDiff-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 4px 10px;
+  height: 28px;
+
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+
+  border: 1px solid var(--jp-border-color1);
+  background: var(--jp-layout-color1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.12s,
+    border-color 0.12s;
+}
+
+.jp-SplitFileDiff-btn .jp-Icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+}
+
+.jp-SplitFileDiff-btn:hover,
+.jp-SplitFileDiff-btn:focus-visible {
+  background: var(--jp-layout-color2);
+  border-color: var(--jp-border-color2);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.jp-SplitFileDiff-btn:focus-visible {
+  outline: 2px solid var(--jp-brand-color1);
+  outline-offset: 2px;
+}
+
+.jp-SplitFileDiff-btn:active {
+  background: var(--jp-layout-color3);
 }
