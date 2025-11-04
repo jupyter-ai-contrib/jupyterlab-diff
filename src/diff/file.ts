@@ -1,6 +1,7 @@
 import { MergeView } from '@codemirror/merge';
 import { basicSetup } from 'codemirror';
-import { EditorView } from '@codemirror/view';
+import { EditorView, ViewUpdate } from '@codemirror/view';
+import { Compartment } from '@codemirror/state';
 import { jupyterTheme } from '@jupyterlab/codemirror';
 import { Widget } from '@lumino/widgets';
 import type { IDocumentWidget } from '@jupyterlab/docregistry';
@@ -43,7 +44,7 @@ export interface ISplitFileDiffOptions {
 
 /**
  * A Lumino widget that contains a CodeMirror MergeView (side-by-side)
- * for file diffs. This is view-only (both editors are non-editable).
+ * for file diffs. This left pane is view only and right pane in editable.
  */
 export class CodeMirrorSplitFileWidget extends Widget {
   private _originalCode: string;
@@ -51,6 +52,7 @@ export class CodeMirrorSplitFileWidget extends Widget {
   private _mergeView: MergeView | null = null;
   private _openDiff: boolean;
   private _scrollWrapper: HTMLElement;
+  private _fileEditorWidget?: IDocumentWidget<FileEditor>;
 
   constructor(options: ISplitFileDiffOptions) {
     super();
@@ -58,6 +60,7 @@ export class CodeMirrorSplitFileWidget extends Widget {
     this._originalCode = options.originalSource;
     this._modifiedCode = options.newSource;
     this._openDiff = options.openDiff ?? true;
+    this._fileEditorWidget = options.fileEditorWidget;
 
     this.node.style.display = 'flex';
     this.node.style.flexDirection = 'column';
@@ -83,7 +86,6 @@ export class CodeMirrorSplitFileWidget extends Widget {
     }
 
     // MergeView options: left (a) = original, right (b) = modified
-    //TODO: Currently Both panes are non-editable, but have to make right pane editable.
     this._mergeView = new MergeView({
       a: {
         doc: this._originalCode,
@@ -96,21 +98,42 @@ export class CodeMirrorSplitFileWidget extends Widget {
       },
       b: {
         doc: this._modifiedCode,
-        extensions: [
-          basicSetup,
-          EditorView.editable.of(false),
-          EditorView.lineWrapping,
-          jupyterTheme
-        ]
+        extensions: [basicSetup, EditorView.lineWrapping, jupyterTheme]
       },
       parent: this._scrollWrapper
     });
+
+    this._enableRightPaneSync();
 
     if (!this._openDiff) {
       this.hide();
     }
   }
 
+  private _enableRightPaneSync(): void {
+    if (!this._fileEditorWidget || !this._mergeView?.b) {
+      return;
+    }
+
+    const fileEditor = this._fileEditorWidget.content;
+    const rightEditor = this._mergeView.b;
+
+    const listenerCompartment = new Compartment();
+
+    const updateListener = EditorView.updateListener.of(
+      (update: ViewUpdate) => {
+        if (update.docChanged) {
+          const newText = update.state.doc.toString();
+
+          fileEditor.model.sharedModel.setSource(newText);
+        }
+      }
+    );
+
+    rightEditor.dispatch({
+      effects: listenerCompartment.reconfigure(updateListener)
+    });
+  }
   private _destroySplitView(): void {
     if (this._mergeView) {
       try {
