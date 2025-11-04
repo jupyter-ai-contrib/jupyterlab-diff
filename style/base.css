@@ -112,13 +112,10 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-
   padding: 4px 10px;
   height: 28px;
-
   font-size: var(--jp-ui-font-size1);
   color: var(--jp-ui-font-color1);
-
   border: 1px solid var(--jp-border-color1);
   background: var(--jp-layout-color1);
   border-radius: 4px;
@@ -140,7 +137,7 @@
   border-color: var(--jp-border-color2);
   filter: brightness(1.05);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
 }
 
 .jp-SplitFileDiff-btn:focus-visible {
