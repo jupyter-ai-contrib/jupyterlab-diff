@@ -60,8 +60,16 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
         extensions: [
           basicSetup,
           python(),
-          EditorView.editable.of(false),
-          jupyterTheme
+          EditorView.editable.of(true),
+          jupyterTheme,
+          EditorView.updateListener.of(update => {
+            if (update.docChanged) {
+              const newText = update.state.doc.toString();
+
+              this._modifiedCode = newText;
+              this._newSource = newText;
+            }
+          })
         ]
       },
       parent: this.node
