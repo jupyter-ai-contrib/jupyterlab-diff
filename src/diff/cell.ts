@@ -1,6 +1,12 @@
 import { python } from '@codemirror/lang-python';
-import { MergeView } from '@codemirror/merge';
-import { EditorView } from '@codemirror/view';
+import { MergeView, getChunks } from '@codemirror/merge';
+import {
+  EditorView,
+  Decoration,
+  WidgetType,
+  DecorationSet
+} from '@codemirror/view';
+import { StateEffect, StateField, RangeSetBuilder } from '@codemirror/state';
 import { jupyterTheme } from '@jupyterlab/codemirror';
 import { Message } from '@lumino/messaging';
 import { Widget } from '@lumino/widgets';
@@ -52,7 +58,8 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
           basicSetup,
           python(),
           EditorView.editable.of(false),
-          jupyterTheme
+          jupyterTheme,
+          splitDiffDecorationField
         ]
       },
       b: {
@@ -60,28 +67,104 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
         extensions: [
           basicSetup,
           python(),
-          EditorView.editable.of(false),
-          jupyterTheme
+          EditorView.editable.of(true),
+          jupyterTheme,
+          splitDiffDecorationField
         ]
       },
-      parent: this.node
+      parent: this.node,
+      gutter: true,
+      highlightChanges: true
     });
+
+    this._renderMergeButtons();
   }
 
   /**
-   * Destroy the split view and clean up resources.
+   * Render "merge change" buttons in the diff on left editor.
    */
+  private _renderMergeButtons(): void {
+    const editorA = this._splitView.a;
+    const editorB = this._splitView.b;
+
+    const result = getChunks(editorA.state);
+    const chunks = result?.chunks;
+
+    if (!chunks || chunks.length === 0) {
+      return;
+    }
+
+    const builder = new RangeSetBuilder<Decoration>();
+
+    chunks.forEach((chunk: any) => {
+      const { fromA, toA, fromB, toB } = chunk;
+
+      const arrowWidget = Decoration.widget({
+        widget: new (class extends WidgetType {
+          toDOM() {
+            const btn = document.createElement('button');
+            btn.textContent = '🡪';
+            btn.className = 'jp-DiffMergeArrow';
+            btn.onclick = () => {
+              const origText = editorA.state.doc.sliceString(fromA, toA);
+
+              editorB.dispatch({
+                changes: { from: fromB, to: toB, insert: origText }
+              });
+              editorA.dispatch({
+                effects: addSplitDiffDecorations.of(
+                  editorA.state.field(splitDiffDecorationField).update({
+                    filter: (from, to, value) => from !== fromA
+                  })
+                )
+              });
+            };
+            return btn;
+          }
+        })(),
+        side: 1
+      });
+
+      builder.add(fromA, fromA, arrowWidget);
+    });
+
+    editorA.dispatch({
+      effects: addSplitDiffDecorations.of(builder.finish())
+    });
+  }
+
   private _destroySplitView(): void {
     if (this._splitView) {
       this._splitView.destroy();
-      this._splitView = null;
+      this._splitView = null!;
     }
   }
 
   private _originalCode: string;
   private _modifiedCode: string;
-  private _splitView: MergeView | null = null;
+
+  private _splitView!: MergeView & {
+    a: EditorView;
+    b: EditorView;
+  };
 }
+
+const addSplitDiffDecorations = StateEffect.define<DecorationSet>();
+
+const splitDiffDecorationField = StateField.define<DecorationSet>({
+  create() {
+    return Decoration.none;
+  },
+  update(deco, tr) {
+    for (const ef of tr.effects) {
+      if (ef.is(addSplitDiffDecorations)) {
+        return ef.value;
+      }
+    }
+    return deco.map(tr.changes);
+  },
+  provide: f => EditorView.decorations.from(f)
+});
 
 export async function createCodeMirrorSplitDiffWidget(
   options: IDiffWidgetOptions
