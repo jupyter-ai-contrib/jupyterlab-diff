@@ -76,6 +76,8 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
 
               this._modifiedCode = newText;
               this._newSource = newText;
+
+              this._renderMergeButtons();
             }
           })
         ]
@@ -95,17 +97,32 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
     const editorA = this._splitView.a;
     const editorB = this._splitView.b;
 
-    const result = getChunks(editorA.state);
-    const chunks = result?.chunks;
+    const result = getChunks(editorB.state);
+    const chunks = result?.chunks ?? [];
 
-    if (!chunks || chunks.length === 0) {
-      return;
+    const updatedSet = new Set<string>();
+    chunks.forEach((chunk: any) => {
+      const id = `${chunk.fromA}-${chunk.toA}`;
+      updatedSet.add(id);
+
+      if (!this._activeChunks.has(id)) {
+        this._activeChunks.add(id);
+      }
+    });
+
+    for (const id of this._activeChunks) {
+      if (!updatedSet.has(id)) {
+        this._activeChunks.delete(id);
+      }
     }
-
     const builder = new RangeSetBuilder<Decoration>();
 
     chunks.forEach((chunk: any) => {
       const { fromA, toA, fromB, toB } = chunk;
+      const id = `${fromA}-${toA}`;
+
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const diffWidget = this;
 
       const arrowWidget = Decoration.widget({
         widget: new (class extends WidgetType {
@@ -119,13 +136,9 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
               editorB.dispatch({
                 changes: { from: fromB, to: toB, insert: origText }
               });
-              editorA.dispatch({
-                effects: addSplitDiffDecorations.of(
-                  editorA.state.field(splitDiffDecorationField).update({
-                    filter: (from, to, value) => from !== fromA
-                  })
-                )
-              });
+
+              diffWidget._activeChunks.delete(id);
+              diffWidget._renderMergeButtons();
             };
             return btn;
           }
@@ -150,6 +163,7 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
 
   private _originalCode: string;
   private _modifiedCode: string;
+  private _activeChunks = new Set<string>();
 
   private _splitView!: MergeView & {
     a: EditorView;
