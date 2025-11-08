@@ -59,7 +59,7 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
           python(),
           EditorView.editable.of(false),
           jupyterTheme,
-          splitDiffDecorationField
+          splitDiffDecoField
         ]
       },
       b: {
@@ -69,7 +69,7 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
           python(),
           EditorView.editable.of(true),
           jupyterTheme,
-          splitDiffDecorationField,
+          splitDiffDecoField,
           EditorView.updateListener.of(update => {
             if (update.docChanged) {
               const newText = update.state.doc.toString();
@@ -77,7 +77,7 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
               this._modifiedCode = newText;
               this._newSource = newText;
 
-              this._renderMergeButtons();
+              this._renderArrowButtons();
             }
           })
         ]
@@ -87,17 +87,17 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
       highlightChanges: true
     });
 
-    this._renderMergeButtons();
+    this._renderArrowButtons();
   }
 
   /**
    * Render "merge change" buttons in the diff on left editor.
    */
-  private _renderMergeButtons(): void {
-    const editorA = this._splitView.a;
-    const editorB = this._splitView.b;
+  private _renderArrowButtons(): void {
+    const paneA = this._splitView.a;
+    const paneB = this._splitView.b;
 
-    const result = getChunks(editorB.state);
+    const result = getChunks(paneB.state);
     const chunks = result?.chunks ?? [];
 
     const updatedSet = new Set<string>();
@@ -127,20 +127,20 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
       const arrowWidget = Decoration.widget({
         widget: new (class extends WidgetType {
           toDOM() {
-            const btn = document.createElement('button');
-            btn.textContent = '🡪';
-            btn.className = 'jp-DiffMergeArrow';
-            btn.onclick = () => {
-              const origText = editorA.state.doc.sliceString(fromA, toA);
+            const arrowBtn = document.createElement('button');
+            arrowBtn.textContent = '🡪';
+            arrowBtn.className = 'jp-DiffMergeArrow';
+            arrowBtn.onclick = () => {
+              const origText = paneA.state.doc.sliceString(fromA, toA);
 
-              editorB.dispatch({
+              paneB.dispatch({
                 changes: { from: fromB, to: toB, insert: origText }
               });
 
               diffWidget._activeChunks.delete(id);
-              diffWidget._renderMergeButtons();
+              diffWidget._renderArrowButtons();
             };
-            return btn;
+            return arrowBtn;
           }
         })(),
         side: 1
@@ -149,8 +149,8 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
       builder.add(fromA, fromA, arrowWidget);
     });
 
-    editorA.dispatch({
-      effects: addSplitDiffDecorations.of(builder.finish())
+    paneA.dispatch({
+      effects: addSplitDiffDeco.of(builder.finish())
     });
   }
 
@@ -171,15 +171,15 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
   };
 }
 
-const addSplitDiffDecorations = StateEffect.define<DecorationSet>();
+const addSplitDiffDeco = StateEffect.define<DecorationSet>();
 
-const splitDiffDecorationField = StateField.define<DecorationSet>({
+const splitDiffDecoField = StateField.define<DecorationSet>({
   create() {
     return Decoration.none;
   },
   update(deco, tr) {
     for (const ef of tr.effects) {
-      if (ef.is(addSplitDiffDecorations)) {
+      if (ef.is(addSplitDiffDeco)) {
         return ef.value;
       }
     }
