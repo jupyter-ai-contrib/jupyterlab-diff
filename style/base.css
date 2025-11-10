@@ -78,11 +78,37 @@
   border-color: var(--jp-border-color1);
 }
 
-.jp-DiffMergeArrow {
-  padding: 2px 6px;
-  border: none;
-  background: none;
-  font-size: 15px;
+.jp-DiffArrowOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 22px;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.jp-DiffConnectorLine {
+  position: absolute;
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.jp-DiffArrow {
+  pointer-events: all;
+  background: var(--jp-layout-color1);
+  padding: 0px 6px;
   cursor: pointer;
-  margin-left: 4px;
+  border: none;
+  font-size: 12px;
+  transition: background-color 0.15s;
+}
+
+.jp-DiffArrow:hover {
+  background-color: var(--jp-layout-color3);
 }

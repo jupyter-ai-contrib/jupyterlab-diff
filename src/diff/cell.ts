@@ -1,12 +1,6 @@
 import { python } from '@codemirror/lang-python';
 import { MergeView, getChunks } from '@codemirror/merge';
-import {
-  EditorView,
-  Decoration,
-  WidgetType,
-  DecorationSet
-} from '@codemirror/view';
-import { StateEffect, StateField, RangeSetBuilder } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
 import { jupyterTheme } from '@jupyterlab/codemirror';
 import { Message } from '@lumino/messaging';
 import { Widget } from '@lumino/widgets';
@@ -58,8 +52,7 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
           basicSetup,
           python(),
           EditorView.editable.of(false),
-          jupyterTheme,
-          splitDiffDecoField
+          jupyterTheme
         ]
       },
       b: {
@@ -69,7 +62,6 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
           python(),
           EditorView.editable.of(true),
           jupyterTheme,
-          splitDiffDecoField,
           EditorView.updateListener.of(update => {
             if (update.docChanged) {
               const newText = update.state.doc.toString();
@@ -87,71 +79,68 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
       highlightChanges: true
     });
 
-    this._renderArrowButtons();
+    const container = this._splitView.dom;
+    const overlay = document.createElement('div');
+    overlay.className = 'jp-DiffArrowOverlay';
+    container.appendChild(overlay);
+    this._arrowOverlay = overlay;
+
+    this._addScrollSync();
+    setTimeout(() => this._renderArrowButtons(), 50);
   }
 
   /**
    * Render "merge change" buttons in the diff on left editor.
    */
   private _renderArrowButtons(): void {
+    if (!this._splitView) {
+      return;
+    }
+
     const paneA = this._splitView.a;
     const paneB = this._splitView.b;
-
     const result = getChunks(paneB.state);
     const chunks = result?.chunks ?? [];
 
-    const updatedSet = new Set<string>();
-    chunks.forEach((chunk: any) => {
-      const id = `${chunk.fromA}-${chunk.toA}`;
-      updatedSet.add(id);
+    this._arrowOverlay.innerHTML = '';
 
-      if (!this._activeChunks.has(id)) {
-        this._activeChunks.add(id);
-      }
-    });
-
-    for (const id of this._activeChunks) {
-      if (!updatedSet.has(id)) {
-        this._activeChunks.delete(id);
-      }
-    }
-    const builder = new RangeSetBuilder<Decoration>();
-
-    chunks.forEach((chunk: any) => {
+    chunks.forEach(chunk => {
       const { fromA, toA, fromB, toB } = chunk;
-      const id = `${fromA}-${toA}`;
+      const lineBlockA = paneA.lineBlockAt(fromA);
+      const lineBlockB = paneB.lineBlockAt(fromB);
+      const midTop = (lineBlockA.top + lineBlockB.top) / 2;
 
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      const diffWidget = this;
+      const connector = document.createElement('div');
+      connector.className = 'jp-DiffConnectorLine';
+      connector.style.top = `${midTop}px`;
 
-      const arrowWidget = Decoration.widget({
-        widget: new (class extends WidgetType {
-          toDOM() {
-            const arrowBtn = document.createElement('button');
-            arrowBtn.textContent = '🡪';
-            arrowBtn.className = 'jp-DiffMergeArrow';
-            arrowBtn.onclick = () => {
-              const origText = paneA.state.doc.sliceString(fromA, toA);
+      const arrowBtn = document.createElement('button');
+      arrowBtn.textContent = '🡪';
+      arrowBtn.className = 'jp-DiffArrow';
+      arrowBtn.title = 'Revert Block';
 
-              paneB.dispatch({
-                changes: { from: fromB, to: toB, insert: origText }
-              });
+      arrowBtn.onclick = () => {
+        const origText = paneA.state.doc.sliceString(fromA, toA);
+        paneB.dispatch({
+          changes: { from: fromB, to: toB, insert: origText }
+        });
+        this._renderArrowButtons();
+      };
 
-              diffWidget._activeChunks.delete(id);
-              diffWidget._renderArrowButtons();
-            };
-            return arrowBtn;
-          }
-        })(),
-        side: 1
-      });
-
-      builder.add(fromA, fromA, arrowWidget);
+      connector.appendChild(arrowBtn);
+      this._arrowOverlay.appendChild(connector);
     });
+  }
 
-    paneA.dispatch({
-      effects: addSplitDiffDeco.of(builder.finish())
-    });
+  /**
+   * Keep arrow overlay in sync with editor scroll.
+   */
+  private _addScrollSync(): void {
+    const paneA = this._splitView.a;
+    const paneB = this._splitView.b;
+    const sync = () => this._renderArrowButtons();
+    paneA.scrollDOM.addEventListener('scroll', sync);
+    paneB.scrollDOM.addEventListener('scroll', sync);
   }
 
   private _destroySplitView(): void {
@@ -159,35 +148,19 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
       this._splitView.destroy();
       this._splitView = null!;
     }
+    if (this._arrowOverlay) {
+      this._arrowOverlay.remove();
+    }
   }
 
   private _originalCode: string;
   private _modifiedCode: string;
-  private _activeChunks = new Set<string>();
-
+  private _arrowOverlay!: HTMLDivElement;
   private _splitView!: MergeView & {
     a: EditorView;
     b: EditorView;
   };
 }
-
-const addSplitDiffDeco = StateEffect.define<DecorationSet>();
-
-const splitDiffDecoField = StateField.define<DecorationSet>({
-  create() {
-    return Decoration.none;
-  },
-  update(deco, tr) {
-    for (const ef of tr.effects) {
-      if (ef.is(addSplitDiffDeco)) {
-        return ef.value;
-      }
-    }
-    return deco.map(tr.changes);
-  },
-  provide: f => EditorView.decorations.from(f)
-});
-
 export async function createCodeMirrorSplitDiffWidget(
   options: IDiffWidgetOptions
 ): Promise<Widget> {
