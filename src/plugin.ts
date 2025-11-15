@@ -10,6 +10,7 @@ import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
 
 import { IDiffWidgetOptions } from './widget';
 import { createCodeMirrorSplitDiffWidget } from './diff/cell';
+import { createCodeMirrorSplitFileWidget } from './diff/file';
 import {
   createUnifiedCellDiffView,
   UnifiedCellDiffManager
@@ -502,9 +503,6 @@ const splitFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           console.error(trans.__('No code editor found in the file widget'));
           return;
         }
-
-        // Create the split widget and add to main area
-        const { createCodeMirrorSplitFileWidget } = await import('./diff/file');
 
         const widget = await createCodeMirrorSplitFileWidget({
           fileEditorWidget,
