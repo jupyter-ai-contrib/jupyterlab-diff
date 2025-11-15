@@ -1,5 +1,5 @@
 import { python } from '@codemirror/lang-python';
-import { MergeView } from '@codemirror/merge';
+import { MergeView, getChunks } from '@codemirror/merge';
 import { EditorView } from '@codemirror/view';
 import { jupyterTheme } from '@jupyterlab/codemirror';
 import { Message } from '@lumino/messaging';
@@ -60,29 +60,113 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
         extensions: [
           basicSetup,
           python(),
-          EditorView.editable.of(false),
-          jupyterTheme
+          EditorView.editable.of(true),
+          jupyterTheme,
+          EditorView.updateListener.of(update => {
+            if (update.docChanged) {
+              const newText = update.state.doc.toString();
+
+              this._modifiedCode = newText;
+              this._newSource = newText;
+
+              this._renderArrowButtons();
+            }
+          })
         ]
       },
-      parent: this.node
+      parent: this.node,
+      gutter: true,
+      highlightChanges: true
+    });
+
+    const container = this._splitView.dom;
+    const overlay = document.createElement('div');
+    overlay.className = 'jp-DiffArrowOverlay';
+    container.appendChild(overlay);
+    this._arrowOverlay = overlay;
+
+    this._addScrollSync();
+    setTimeout(() => this._renderArrowButtons(), 50);
+  }
+
+  /**
+   * Render "merge change" buttons in the diff on left editor.
+   */
+  private _renderArrowButtons(): void {
+    if (!this._splitView) {
+      return;
+    }
+
+    const paneA = this._splitView.a;
+    const paneB = this._splitView.b;
+    const result = getChunks(paneB.state);
+    const chunks = result?.chunks ?? [];
+
+    this._arrowOverlay.innerHTML = '';
+
+    chunks.forEach(chunk => {
+      const { fromA, toA, fromB, toB } = chunk;
+      const lineBlockA = paneA.lineBlockAt(fromA);
+      const lineBlockB = paneB.lineBlockAt(fromB);
+      const midTop = (lineBlockA.top + lineBlockB.top) / 2;
+
+      const connector = document.createElement('div');
+      connector.className = 'jp-DiffConnectorLine';
+      connector.style.top = `${midTop}px`;
+
+      const arrowBtn = document.createElement('button');
+      arrowBtn.textContent = '🡪';
+      arrowBtn.className = 'jp-DiffArrow';
+      arrowBtn.title = 'Revert Block';
+
+      arrowBtn.onclick = () => {
+        const docB = paneB.state.doc;
+        const docLength = docB.length;
+
+        const safeFromB = Math.min(Math.max(0, fromB), docLength);
+        const safeToB = Math.min(Math.max(safeFromB, toB), docLength);
+
+        const origText = paneA.state.doc.sliceString(fromA, toA);
+        paneB.dispatch({
+          changes: { from: safeFromB, to: safeToB, insert: origText }
+        });
+        this._renderArrowButtons();
+      };
+
+      connector.appendChild(arrowBtn);
+      this._arrowOverlay.appendChild(connector);
     });
   }
 
   /**
-   * Destroy the split view and clean up resources.
+   * Keep arrow overlay in sync with editor scroll.
    */
+  private _addScrollSync(): void {
+    const paneA = this._splitView.a;
+    const paneB = this._splitView.b;
+    const sync = () => this._renderArrowButtons();
+    paneA.scrollDOM.addEventListener('scroll', sync);
+    paneB.scrollDOM.addEventListener('scroll', sync);
+  }
+
   private _destroySplitView(): void {
     if (this._splitView) {
       this._splitView.destroy();
-      this._splitView = null;
+      this._splitView = null!;
+    }
+    if (this._arrowOverlay) {
+      this._arrowOverlay.remove();
     }
   }
 
   private _originalCode: string;
   private _modifiedCode: string;
-  private _splitView: MergeView | null = null;
+  private _arrowOverlay!: HTMLDivElement;
+  private _splitView!: MergeView & {
+    a: EditorView;
+    b: EditorView;
+  };
 }
-
 export async function createCodeMirrorSplitDiffWidget(
   options: IDiffWidgetOptions
 ): Promise<Widget> {
