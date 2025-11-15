@@ -120,9 +120,15 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
       arrowBtn.title = 'Revert Block';
 
       arrowBtn.onclick = () => {
+        const docB = paneB.state.doc;
+        const docLength = docB.length;
+
+        const safeFromB = Math.min(Math.max(0, fromB), docLength);
+        const safeToB = Math.min(Math.max(safeFromB, toB), docLength);
+
         const origText = paneA.state.doc.sliceString(fromA, toA);
         paneB.dispatch({
-          changes: { from: fromB, to: toB, insert: origText }
+          changes: { from: safeFromB, to: safeToB, insert: origText }
         });
         this._renderArrowButtons();
       };
