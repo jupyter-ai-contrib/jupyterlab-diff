@@ -5,8 +5,9 @@ import {
 import { ICellModel } from '@jupyterlab/cells';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
-import { IEditorTracker } from '@jupyterlab/fileeditor';
+import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
+import { IDocumentWidget } from '@jupyterlab/docregistry';
 
 import { IDiffWidgetOptions } from './widget';
 import { createCodeMirrorSplitDiffWidget } from './diff/cell';
@@ -19,6 +20,7 @@ import {
   UnifiedFileDiffManager
 } from './diff/unified-file';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { PathExt } from '@jupyterlab/coreutils';
 
 /**
  * The translation namespace for the plugin.
@@ -369,19 +371,36 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
         }
 
         // Try to find the file editor widget by its filepath using IEditorTracker
-        let fileEditorWidget = editorTracker.currentWidget;
+        let fileEditorWidget: IDocumentWidget<FileEditor> | null = null;
+
+        // Look for a matching open file
         if (filePath) {
-          // Search through all open file editors in the tracker
-          const fileEditors = editorTracker.find(widget => {
-            return widget.context?.path === filePath;
+          editorTracker.forEach(widget => {
+            const widgetPath = widget.context.path;
+            if (PathExt.basename(widgetPath) === PathExt.basename(filePath)) {
+              fileEditorWidget = widget;
+            }
           });
-          if (fileEditors) {
-            fileEditorWidget = fileEditors;
+
+          // If not opened, try opening it
+          if (!fileEditorWidget) {
+            try {
+              fileEditorWidget = await app.commands.execute(
+                'filebrowser:open-path',
+                { path: filePath }
+              );
+            } catch (err) {
+              console.error('Failed to open file:', err);
+            }
           }
         }
 
-        // If no specific file editor found, try to get the current widget from the tracker
+        // If still null → fallback only if user did NOT pass filePath
         if (!fileEditorWidget) {
+          if (filePath) {
+            console.error(`No open editor for path: ${filePath}`);
+            return;
+          }
           fileEditorWidget = editorTracker.currentWidget;
         }
 

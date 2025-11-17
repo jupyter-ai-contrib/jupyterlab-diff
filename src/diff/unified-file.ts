@@ -100,6 +100,11 @@ export class UnifiedFileDiffManager extends BaseUnifiedDiffManager {
       return;
     }
 
+    // HARD GUARD — JupyterLab may have already destroyed the toolbar
+    if (!toolbar || toolbar.isDisposed || !toolbar.parent) {
+      return;
+    }
+
     // Remove and dispose items only if they were added
     if (this.showActionButtons) {
       // Dispose of the spacer
