@@ -34,6 +34,11 @@ export interface IBaseUnifiedDiffOptions {
    * Whether to show accept/reject buttons
    */
   showActionButtons?: boolean;
+
+  /**
+   * Whether to allow inline diffs
+   */
+  allowInlineDiffs?: boolean;
 }
 
 /**
@@ -49,6 +54,7 @@ export abstract class BaseUnifiedDiffManager {
     this._newSource = options.newSource;
     this.trans = options.trans;
     this.showActionButtons = options.showActionButtons ?? true;
+    this.allowInlineDiffs = options.allowInlineDiffs ?? false;
     this._isInitialized = false;
     this._isDisposed = false;
     this._diffCompartment = new Compartment();
@@ -168,7 +174,8 @@ export abstract class BaseUnifiedDiffManager {
       newSource: this._newSource,
       isInitialized: this._isInitialized,
       sharedModel: this.getSharedModel(),
-      onChunkChange: () => this.deactivate()
+      onChunkChange: () => this.deactivate(),
+      allowInlineDiffs: this.allowInlineDiffs
     });
 
     this._isInitialized = true;
@@ -184,6 +191,7 @@ export abstract class BaseUnifiedDiffManager {
   protected editor: CodeMirrorEditor;
   protected trans: TranslationBundle;
   protected showActionButtons: boolean;
+  protected allowInlineDiffs: boolean;
   protected acceptAllButton: ToolbarButton | null = null;
   protected rejectAllButton: ToolbarButton | null = null;
   private _newSource: string;
