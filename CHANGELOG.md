@@ -2,6 +2,37 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.6.1
+
+([Full Changelog](https://github.com/jupyter-ai-contrib/jupyterlab-diff/compare/v0.6.0...744decd13a05ff75b7d88bac91ae5df1a672eb51))
+
+### Enhancements made
+
+- Adding `inlineDiffs` for `unified-cell` diffs [#32](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/32) ([@nakul-py](https://github.com/nakul-py))
+- Show unified-diff for rendered markdown cells [#31](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/31) ([@nakul-py](https://github.com/nakul-py))
+
+### Bugs fixed
+
+- Fixing Buttons Overlapping bug [#26](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/26) ([@nakul-py](https://github.com/nakul-py))
+
+### Maintenance and upkeep improvements
+
+- Type fixes [#29](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/29) ([@jtpio](https://github.com/jtpio))
+
+### Documentation improvements
+
+- Add Test's `README.md` link to `CONTRIBUTING.md` for local testing [#33](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/33) ([@nakul-py](https://github.com/nakul-py))
+- Updating Documentation for Contributing steps [#25](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/25) ([@nakul-py](https://github.com/nakul-py))
+- Document executing commands from the dev tools console [#24](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/24) ([@jtpio](https://github.com/jtpio))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-ai-contrib/jupyterlab-diff/graphs/contributors?from=2025-10-23&to=2025-11-03&type=c))
+
+[@jtpio](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Ajtpio+updated%3A2025-10-23..2025-11-03&type=Issues) | [@nakul-py](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Anakul-py+updated%3A2025-10-23..2025-11-03&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3AZsailer+updated%3A2025-10-23..2025-11-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.6.0
 
 ([Full Changelog](https://github.com/jupyter-ai-contrib/jupyterlab-diff/compare/v0.5.1...b379a79ebc5163ac5aa677728d3ce7fb67ac6b4c))
@@ -21,8 +52,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-ai-contrib/jupyterlab-diff/graphs/contributors?from=2025-09-23&to=2025-10-23&type=c))
 
 [@jtpio](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Ajtpio+updated%3A2025-09-23..2025-10-23&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3AZsailer+updated%3A2025-09-23..2025-10-23&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.5.1
 
