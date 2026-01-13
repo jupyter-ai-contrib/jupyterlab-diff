@@ -33,7 +33,6 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     super(options);
     this._cell = options.cell;
     this._cellFooterTracker = options.cellFooterTracker;
-    this._originalSource = options.originalSource ?? '';
     this.activate();
   }
 
@@ -45,7 +44,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
    * Check if this cell still has pending changes
    */
   public hasPendingChanges(): boolean {
-    return this._originalSource !== this._cell.model.sharedModel.getSource();
+    return this.originalSource !== this._cell.model.sharedModel.getSource();
   }
 
   /**
