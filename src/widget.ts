@@ -100,7 +100,7 @@ export abstract class BaseDiffWidget extends Widget {
    */
   public onAcceptClick(): void {
     if (this._cell) {
-      this._cell.sharedModel.setSource(this._newSource || this._originalSource);
+      this._cell.sharedModel.setSource(this._newSource);
       this._closeDiffView();
     }
   }
@@ -190,10 +190,10 @@ export abstract class BaseDiffWidget extends Widget {
 
   private _cell: ICellModel;
   private _cellFooterTracker: ICellFooterTracker;
-  private _originalSource: string;
+  protected _originalSource: string;
+  protected _newSource: string;
   private _showActionButtons: boolean;
   private _openDiff: boolean;
   private _toggleButton: ToolbarButton | null = null;
   private _trans: TranslationBundle;
-  public _newSource: string;
 }
