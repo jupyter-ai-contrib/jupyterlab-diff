@@ -98,7 +98,7 @@
 .jp-unified-diff-floating-panel .jp-merge-reject-button {
   padding: 12px 10px;
   font-size: 13px;
-  border-radius: 2px;
+  border-radius: var(--jp-border-radius);
   cursor: pointer;
   color: white;
   font-weight: inherit;
