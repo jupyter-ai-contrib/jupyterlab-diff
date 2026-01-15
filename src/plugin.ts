@@ -385,10 +385,10 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           // If not opened, try opening it
           if (!fileEditorWidget) {
             try {
-              fileEditorWidget = await app.commands.execute(
-                'filebrowser:open-path',
-                { path: filePath }
-              );
+              fileEditorWidget = await app.commands.execute('docmanager:open', {
+                path: filePath
+              });
+              await fileEditorWidget?.revealed;
             } catch (err) {
               console.error('Failed to open file:', err);
             }
