@@ -391,7 +391,7 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        // Use the file path as the key, or a default key if not available
+        // Use the file path as the key
         const managerKey = fileEditorWidget.context.path;
 
         // Dispose any existing manager for this file
