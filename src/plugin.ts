@@ -5,8 +5,9 @@ import {
 import { ICellModel } from '@jupyterlab/cells';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
-import { IEditorTracker } from '@jupyterlab/fileeditor';
+import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
+import { IDocumentWidget } from '@jupyterlab/docregistry';
 
 import { IDiffWidgetOptions } from './widget';
 import { createCodeMirrorSplitDiffWidget } from './diff/cell';
@@ -368,22 +369,15 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        // Try to find the file editor widget by its filepath using IEditorTracker
-        let fileEditorWidget = editorTracker.currentWidget;
-        if (filePath) {
-          // Search through all open file editors in the tracker
-          const fileEditors = editorTracker.find(widget => {
-            return widget.context?.path === filePath;
-          });
-          if (fileEditors) {
-            fileEditorWidget = fileEditors;
-          }
-        }
+        // Try to get the file editor widget from the file path or current widget
+        const fileEditorWidget: IDocumentWidget<FileEditor> | null | undefined =
+          filePath
+            ? await app.commands.execute('docmanager:open', {
+                path: filePath
+              })
+            : editorTracker.currentWidget;
 
-        // If no specific file editor found, try to get the current widget from the tracker
-        if (!fileEditorWidget) {
-          fileEditorWidget = editorTracker.currentWidget;
-        }
+        await fileEditorWidget?.revealed;
 
         if (!fileEditorWidget) {
           console.error(trans.__('No editor found for the file'));
@@ -397,9 +391,8 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        // Use the file path as the key, or a default key if not available
-        const managerKey =
-          filePath || fileEditorWidget.context?.path || 'default';
+        // Use the file path as the key
+        const managerKey = fileEditorWidget.context.path;
 
         // Dispose any existing manager for this file
         const existingManager = fileDiffManagers.get(managerKey);
