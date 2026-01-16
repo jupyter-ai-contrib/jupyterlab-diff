@@ -65,6 +65,29 @@ export function findCell(
 }
 
 /**
+ * Registry for notebook-level diff managers
+ */
+const notebookDiffRegistry = new Map<string, UnifiedCellDiffManager[]>();
+
+let registerCellManager = (
+  notebookId: string,
+  manager: UnifiedCellDiffManager
+): void => {
+  if (!notebookDiffRegistry.has(notebookId)) {
+    notebookDiffRegistry.set(notebookId, []);
+  }
+  notebookDiffRegistry.get(notebookId)!.push(manager);
+};
+
+function getNotebookManagers(notebookId: string) {
+  return notebookDiffRegistry.get(notebookId) || [];
+}
+
+function clearNotebookManagers(notebookId: string) {
+  notebookDiffRegistry.delete(notebookId);
+}
+
+/**
  * Split cell diff plugin - shows side-by-side comparison
  */
 const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
@@ -292,7 +315,76 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           trans
         });
         cellDiffManagers.set(cell.id, manager);
+
+        registerCellManager(currentNotebook.id, manager);
       }
+    });
+    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
+      const notebookId = notebookPanel.id;
+
+      let floatingPanel: HTMLElement | null = null;
+
+      function createFloatingPanel(): HTMLElement {
+        const panel = document.createElement('div');
+        panel.classList.add('jp-unified-diff-floating-panel');
+
+        const acceptButton = document.createElement('button');
+        acceptButton.classList.add('jp-merge-accept-button');
+        acceptButton.textContent = 'Accept All';
+        acceptButton.title = trans.__('Accept all changes in this notebook');
+        acceptButton.onclick = () => {
+          getNotebookManagers(notebookId).forEach(m => m.acceptAll());
+          updateFloatingPanel();
+        };
+
+        const rejectButton = document.createElement('button');
+        rejectButton.classList.add('jp-merge-reject-button');
+        rejectButton.textContent = 'Reject All';
+        rejectButton.title = trans.__('Reject all changes in this notebook');
+        rejectButton.onclick = () => {
+          getNotebookManagers(notebookId).forEach(m => m.rejectAll());
+          updateFloatingPanel();
+        };
+
+        panel.appendChild(acceptButton);
+        panel.appendChild(rejectButton);
+        return panel;
+      }
+
+      function updateFloatingPanel(): void {
+        const managers = getNotebookManagers(notebookId);
+        const anyPending = managers.some(m => m.hasPendingChanges());
+
+        if (!anyPending) {
+          if (floatingPanel && floatingPanel.parentElement) {
+            floatingPanel.parentElement.removeChild(floatingPanel);
+          }
+          floatingPanel = null;
+          return;
+        }
+
+        if (!floatingPanel) {
+          floatingPanel = createFloatingPanel();
+          notebookPanel.node.appendChild(floatingPanel);
+        }
+      }
+
+      notebookPanel.disposed.connect(() => {
+        clearNotebookManagers(notebookId);
+        if (floatingPanel && floatingPanel.parentElement) {
+          floatingPanel.parentElement.removeChild(floatingPanel);
+        }
+        floatingPanel = null;
+      });
+
+      notebookPanel.node.addEventListener('diff-updated', updateFloatingPanel);
+
+      const originalRegister = registerCellManager;
+      registerCellManager = (nid: string, manager: UnifiedCellDiffManager) => {
+        originalRegister(nid, manager);
+        const event = new Event('diff-updated');
+        notebookPanel.node.dispatchEvent(event);
+      };
     });
   }
 };

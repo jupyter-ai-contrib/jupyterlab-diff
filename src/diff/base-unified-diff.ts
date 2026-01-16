@@ -96,6 +96,10 @@ export abstract class BaseUnifiedDiffManager {
    */
   protected abstract removeToolbarButtons(): void;
 
+  protected get originalSource(): string {
+    return this._originalSource;
+  }
+
   /**
    * Hook to hide the cell toolbar — overridden in subclasses
    */
@@ -141,17 +145,19 @@ export abstract class BaseUnifiedDiffManager {
   /**
    * Accept all changes
    */
-  protected acceptAll(): void {
+  public acceptAll(): void {
     // simply accept the current state
+    const sharedModel = this.getSharedModel();
+    this._originalSource = sharedModel.getSource();
     this.deactivate();
   }
 
   /**
    * Reject all changes
    */
-  protected rejectAll(): void {
+  public rejectAll(): void {
     const sharedModel = this.getSharedModel();
-    sharedModel.setSource(this._originalSource);
+    sharedModel.setSource(this.originalSource);
     this.deactivate();
   }
 
@@ -168,7 +174,7 @@ export abstract class BaseUnifiedDiffManager {
     applyDiff({
       editorView,
       compartment: this._diffCompartment,
-      originalSource: this._originalSource,
+      originalSource: this.originalSource,
       newSource: this._newSource,
       isInitialized: this._isInitialized,
       sharedModel: this.getSharedModel(),
@@ -192,9 +198,9 @@ export abstract class BaseUnifiedDiffManager {
   protected allowInlineDiffs: boolean;
   protected acceptAllButton: ToolbarButton | null = null;
   protected rejectAllButton: ToolbarButton | null = null;
-  private _originalSource: string;
   private _newSource: string;
   private _isInitialized: boolean;
   private _isDisposed: boolean;
   private _diffCompartment: Compartment;
+  private _originalSource: string;
 }
