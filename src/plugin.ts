@@ -20,7 +20,6 @@ import {
   UnifiedFileDiffManager
 } from './diff/unified-file';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { PathExt } from '@jupyterlab/coreutils';
 
 /**
  * The translation namespace for the plugin.
@@ -370,39 +369,15 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        // Try to find the file editor widget by its filepath using IEditorTracker
-        let fileEditorWidget: IDocumentWidget<FileEditor> | null = null;
-
-        // Look for a matching open file
-        if (filePath) {
-          editorTracker.forEach(widget => {
-            const widgetPath = widget.context.path;
-            if (PathExt.basename(widgetPath) === PathExt.basename(filePath)) {
-              fileEditorWidget = widget;
-            }
-          });
-
-          // If not opened, try opening it
-          if (!fileEditorWidget) {
-            try {
-              fileEditorWidget = await app.commands.execute('docmanager:open', {
+        // Try to get the file editor widget from the file path or current widget
+        const fileEditorWidget: IDocumentWidget<FileEditor> | null | undefined =
+          filePath
+            ? await app.commands.execute('docmanager:open', {
                 path: filePath
-              });
-              await fileEditorWidget?.revealed;
-            } catch (err) {
-              console.error('Failed to open file:', err);
-            }
-          }
-        }
+              })
+            : editorTracker.currentWidget;
 
-        // If still null → fallback only if user did NOT pass filePath
-        if (!fileEditorWidget) {
-          if (filePath) {
-            console.error(`No open editor for path: ${filePath}`);
-            return;
-          }
-          fileEditorWidget = editorTracker.currentWidget;
-        }
+        await fileEditorWidget?.revealed;
 
         if (!fileEditorWidget) {
           console.error(trans.__('No editor found for the file'));
@@ -417,8 +392,7 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
         }
 
         // Use the file path as the key, or a default key if not available
-        const managerKey =
-          filePath || fileEditorWidget.context?.path || 'default';
+        const managerKey = fileEditorWidget.context.path;
 
         // Dispose any existing manager for this file
         const existingManager = fileDiffManagers.get(managerKey);
