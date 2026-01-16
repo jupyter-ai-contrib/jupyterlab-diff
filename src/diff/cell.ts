@@ -16,8 +16,6 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
    */
   constructor(options: IDiffWidgetOptions) {
     super(options);
-    this._originalCode = options.originalSource;
-    this._modifiedCode = options.newSource;
     this.addClass('jp-SplitDiffView');
   }
 
@@ -47,7 +45,7 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
 
     this._splitView = new MergeView({
       a: {
-        doc: this._originalCode,
+        doc: this._originalSource,
         extensions: [
           basicSetup,
           python(),
@@ -56,12 +54,19 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
         ]
       },
       b: {
-        doc: this._modifiedCode,
+        doc: this._newSource,
         extensions: [
           basicSetup,
           python(),
-          EditorView.editable.of(false),
-          jupyterTheme
+          EditorView.editable.of(true),
+          jupyterTheme,
+          EditorView.updateListener.of(update => {
+            if (update.docChanged) {
+              const newText = update.state.doc.toString();
+
+              this._newSource = newText;
+            }
+          })
         ]
       },
       parent: this.node
@@ -78,8 +83,6 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
     }
   }
 
-  private _originalCode: string;
-  private _modifiedCode: string;
   private _splitView: MergeView | null = null;
 }
 
