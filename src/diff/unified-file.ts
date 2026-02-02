@@ -96,7 +96,7 @@ export class UnifiedFileDiffManager extends BaseUnifiedDiffManager {
     }
 
     const toolbar = this._fileEditorWidget.toolbar;
-    if (!toolbar) {
+    if (!toolbar || toolbar.isDisposed || !toolbar.parent) {
       return;
     }
 
