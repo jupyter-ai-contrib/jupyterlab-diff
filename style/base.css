@@ -147,6 +147,8 @@
 
 .jp-SplitFileDiff-btn:active {
   background: var(--jp-layout-color3);
+}
+
 /* Floating unified-cell-diff control panel */
 .jp-unified-diff-floating-panel {
   position: absolute;
