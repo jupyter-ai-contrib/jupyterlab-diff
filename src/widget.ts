@@ -100,7 +100,7 @@ export abstract class BaseDiffWidget extends Widget {
    */
   public onAcceptClick(): void {
     if (this._cell) {
-      this._cell.sharedModel.setSource(this._newSource);
+      this._cell.sharedModel.setSource(this._newSource || this._originalSource);
       this._closeDiffView();
     }
   }

@@ -121,3 +121,14 @@
 .jp-unified-diff-floating-panel .jp-merge-reject-button:hover {
   background-color: var(--jp-error-color0);
 }
+
+.jp-DiffRevertButton {
+  background: var(--jp-layout-color1);
+  padding: 4px 6px;
+  cursor: pointer;
+  transform: translateY(4px);
+}
+
+.jp-DiffRevertButton:hover {
+  background: var(--jp-layout-color3);
+}
