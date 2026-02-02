@@ -69,6 +69,7 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
           })
         ]
       },
+      parent: this.node,
       revertControls: 'a-to-b',
       renderRevertControl: () => {
         const btn = document.createElement('button');
@@ -77,12 +78,14 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
         btn.textContent = '🡪';
         return btn;
       },
-      parent: this.node,
       gutter: true,
       highlightChanges: true
     });
   }
 
+  /**
+   * Destroy the split view and clean up resources.
+   */
   private _destroySplitView(): void {
     if (this._splitView) {
       this._splitView.destroy();
