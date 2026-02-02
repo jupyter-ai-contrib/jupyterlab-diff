@@ -5,8 +5,9 @@ import {
 import { ICellModel } from '@jupyterlab/cells';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
-import { IEditorTracker } from '@jupyterlab/fileeditor';
+import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
+import { IDocumentWidget } from '@jupyterlab/docregistry';
 
 import { IDiffWidgetOptions } from './widget';
 import { createCodeMirrorSplitDiffWidget } from './diff/cell';
@@ -61,6 +62,29 @@ export function findCell(
   }
 
   return cell ?? null;
+}
+
+/**
+ * Registry for notebook-level diff managers
+ */
+const notebookDiffRegistry = new Map<string, UnifiedCellDiffManager[]>();
+
+let registerCellManager = (
+  notebookId: string,
+  manager: UnifiedCellDiffManager
+): void => {
+  if (!notebookDiffRegistry.has(notebookId)) {
+    notebookDiffRegistry.set(notebookId, []);
+  }
+  notebookDiffRegistry.get(notebookId)!.push(manager);
+};
+
+function getNotebookManagers(notebookId: string) {
+  return notebookDiffRegistry.get(notebookId) || [];
+}
+
+function clearNotebookManagers(notebookId: string) {
+  notebookDiffRegistry.delete(notebookId);
 }
 
 /**
@@ -291,7 +315,76 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           trans
         });
         cellDiffManagers.set(cell.id, manager);
+
+        registerCellManager(currentNotebook.id, manager);
       }
+    });
+    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
+      const notebookId = notebookPanel.id;
+
+      let floatingPanel: HTMLElement | null = null;
+
+      function createFloatingPanel(): HTMLElement {
+        const panel = document.createElement('div');
+        panel.classList.add('jp-unified-diff-floating-panel');
+
+        const acceptButton = document.createElement('button');
+        acceptButton.classList.add('jp-merge-accept-button');
+        acceptButton.textContent = 'Accept All';
+        acceptButton.title = trans.__('Accept all changes in this notebook');
+        acceptButton.onclick = () => {
+          getNotebookManagers(notebookId).forEach(m => m.acceptAll());
+          updateFloatingPanel();
+        };
+
+        const rejectButton = document.createElement('button');
+        rejectButton.classList.add('jp-merge-reject-button');
+        rejectButton.textContent = 'Reject All';
+        rejectButton.title = trans.__('Reject all changes in this notebook');
+        rejectButton.onclick = () => {
+          getNotebookManagers(notebookId).forEach(m => m.rejectAll());
+          updateFloatingPanel();
+        };
+
+        panel.appendChild(acceptButton);
+        panel.appendChild(rejectButton);
+        return panel;
+      }
+
+      function updateFloatingPanel(): void {
+        const managers = getNotebookManagers(notebookId);
+        const anyPending = managers.some(m => m.hasPendingChanges());
+
+        if (!anyPending) {
+          if (floatingPanel && floatingPanel.parentElement) {
+            floatingPanel.parentElement.removeChild(floatingPanel);
+          }
+          floatingPanel = null;
+          return;
+        }
+
+        if (!floatingPanel) {
+          floatingPanel = createFloatingPanel();
+          notebookPanel.node.appendChild(floatingPanel);
+        }
+      }
+
+      notebookPanel.disposed.connect(() => {
+        clearNotebookManagers(notebookId);
+        if (floatingPanel && floatingPanel.parentElement) {
+          floatingPanel.parentElement.removeChild(floatingPanel);
+        }
+        floatingPanel = null;
+      });
+
+      notebookPanel.node.addEventListener('diff-updated', updateFloatingPanel);
+
+      const originalRegister = registerCellManager;
+      registerCellManager = (nid: string, manager: UnifiedCellDiffManager) => {
+        originalRegister(nid, manager);
+        const event = new Event('diff-updated');
+        notebookPanel.node.dispatchEvent(event);
+      };
     });
   }
 };
@@ -368,22 +461,15 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        // Try to find the file editor widget by its filepath using IEditorTracker
-        let fileEditorWidget = editorTracker.currentWidget;
-        if (filePath) {
-          // Search through all open file editors in the tracker
-          const fileEditors = editorTracker.find(widget => {
-            return widget.context?.path === filePath;
-          });
-          if (fileEditors) {
-            fileEditorWidget = fileEditors;
-          }
-        }
+        // Try to get the file editor widget from the file path or current widget
+        const fileEditorWidget: IDocumentWidget<FileEditor> | null | undefined =
+          filePath
+            ? await app.commands.execute('docmanager:open', {
+                path: filePath
+              })
+            : editorTracker.currentWidget;
 
-        // If no specific file editor found, try to get the current widget from the tracker
-        if (!fileEditorWidget) {
-          fileEditorWidget = editorTracker.currentWidget;
-        }
+        await fileEditorWidget?.revealed;
 
         if (!fileEditorWidget) {
           console.error(trans.__('No editor found for the file'));
@@ -397,9 +483,8 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        // Use the file path as the key, or a default key if not available
-        const managerKey =
-          filePath || fileEditorWidget.context?.path || 'default';
+        // Use the file path as the key
+        const managerKey = fileEditorWidget.context.path;
 
         // Dispose any existing manager for this file
         const existingManager = fileDiffManagers.get(managerKey);

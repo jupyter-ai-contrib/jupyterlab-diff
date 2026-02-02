@@ -190,10 +190,10 @@ export abstract class BaseDiffWidget extends Widget {
 
   private _cell: ICellModel;
   private _cellFooterTracker: ICellFooterTracker;
-  private _originalSource: string;
+  protected _originalSource: string;
+  protected _newSource: string;
   private _showActionButtons: boolean;
   private _openDiff: boolean;
   private _toggleButton: ToolbarButton | null = null;
   private _trans: TranslationBundle;
-  public _newSource: string;
 }

@@ -78,6 +78,51 @@
   border-color: var(--jp-border-color1);
 }
 
+/* Floating unified-cell-diff control panel */
+.jp-unified-diff-floating-panel {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  gap: 12px;
+  background: var(--jp-layout-color1);
+  border: 1px solid var(--jp-border-color2);
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px #00000040;
+  z-index: 200;
+  opacity: 0.95;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.jp-unified-diff-floating-panel .jp-merge-accept-button,
+.jp-unified-diff-floating-panel .jp-merge-reject-button {
+  padding: 12px 10px;
+  font-size: 13px;
+  border-radius: var(--jp-border-radius);
+  cursor: pointer;
+  color: white;
+  font-weight: inherit;
+  border: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.jp-unified-diff-floating-panel .jp-merge-accept-button {
+  background-color: var(--jp-success-color1);
+}
+
+.jp-unified-diff-floating-panel .jp-merge-accept-button:hover {
+  background-color: var(--jp-success-color0);
+}
+
+.jp-unified-diff-floating-panel .jp-merge-reject-button {
+  background-color: var(--jp-error-color1);
+}
+
+.jp-unified-diff-floating-panel .jp-merge-reject-button:hover {
+  background-color: var(--jp-error-color0);
+}
+
+
 .jp-DiffArrowOverlay {
   position: absolute;
   inset: 0 22px 0 0;
