@@ -122,35 +122,13 @@
   background-color: var(--jp-error-color0);
 }
 
-
-.jp-DiffArrowOverlay {
-  position: absolute;
-  inset: 0 22px 0 0;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.jp-DiffConnectorLine {
-  position: absolute;
-  width: 100%;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 4;
-}
-
-.jp-DiffArrow {
-  pointer-events: all;
+.jp-DiffRevertButton {
   background: var(--jp-layout-color1);
-  padding: 0 6px;
+  padding: 4px 6px;
   cursor: pointer;
-  border: none;
-  font-size: 12px;
-  transition: background-color 0.15s;
+  transform: translateY(4px);
 }
 
-.jp-DiffArrow:hover {
-  background-color: var(--jp-layout-color3);
+.jp-DiffRevertButton:hover {
+  background: var(--jp-layout-color3);
 }
