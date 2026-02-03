@@ -111,6 +111,11 @@ export abstract class BaseUnifiedDiffManager {
   protected showCellToolbar(): void {}
 
   /**
+   * Hook to update the diff view — overridden in subclasses
+   */
+  protected onDiffUpdated?: () => void;
+
+  /**
    * Activate the diff view
    */
   protected activate(): void {
@@ -178,7 +183,9 @@ export abstract class BaseUnifiedDiffManager {
       newSource: this._newSource,
       isInitialized: this._isInitialized,
       sharedModel: this.getSharedModel(),
-      onChunkChange: () => this.deactivate(),
+      onChunkChange: () => {
+        this.deactivate(), this.onDiffUpdated?.();
+      },
       allowInlineDiffs: this.allowInlineDiffs
     });
 
