@@ -157,7 +157,6 @@ export abstract class BaseUnifiedDiffManager {
       return;
     }
 
-    // Iterate backwards to avoid position shifts
     for (let i = info.chunks.length - 1; i >= 0; i--) {
       acceptChunk(view, info.chunks[i].fromB);
     }
