@@ -50,7 +50,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
   /**
    * Notify that the diff has been updated
    */
-  protected _notifyDiffUpdated(): void {
+  private _notifyDiffUpdated(): void {
     const event = new CustomEvent('diff-updated', {
       bubbles: true
     });

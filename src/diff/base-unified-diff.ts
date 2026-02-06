@@ -184,7 +184,8 @@ export abstract class BaseUnifiedDiffManager {
       isInitialized: this._isInitialized,
       sharedModel: this.getSharedModel(),
       onChunkChange: () => {
-        this.deactivate(), this.onDiffUpdated?.();
+        this.deactivate();
+        this.onDiffUpdated?.();
       },
       allowInlineDiffs: this.allowInlineDiffs
     });
