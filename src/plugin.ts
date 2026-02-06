@@ -77,6 +77,8 @@ let registerCellManager = (
     notebookDiffRegistry.set(notebookId, []);
   }
   notebookDiffRegistry.get(notebookId)!.push(manager);
+
+  originalManager(notebookId, manager);
 };
 
 function getNotebookManagers(notebookId: string) {
@@ -85,6 +87,21 @@ function getNotebookManagers(notebookId: string) {
 
 function clearNotebookManagers(notebookId: string) {
   notebookDiffRegistry.delete(notebookId);
+}
+
+/**
+ * Remove the manager from the notebook diff registry
+ */
+function originalManager(notebookId: string, manager: UnifiedCellDiffManager) {
+  const originalDispose = manager.dispose.bind(manager);
+  manager.dispose = () => {
+    originalDispose();
+    const list = notebookDiffRegistry.get(notebookId) ?? [];
+    notebookDiffRegistry.set(
+      notebookId,
+      list.filter(m => m !== manager)
+    );
+  };
 }
 
 /**
@@ -353,9 +370,9 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
 
       function updateFloatingPanel(): void {
         const managers = getNotebookManagers(notebookId);
-        const anyPending = managers.some(m => m.hasPendingChanges());
+        const pendingManagers = managers.filter(m => m.hasPendingChanges());
 
-        if (!anyPending) {
+        if (pendingManagers.length < 2) {
           if (floatingPanel && floatingPanel.parentElement) {
             floatingPanel.parentElement.removeChild(floatingPanel);
           }
