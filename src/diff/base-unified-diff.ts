@@ -5,6 +5,7 @@ import { TranslationBundle } from '@jupyterlab/translation';
 import { ToolbarButton } from '@jupyterlab/ui-components';
 import { applyDiff } from './utils';
 import type { ISharedText } from '@jupyter/ydoc';
+import { getChunks, acceptChunk, rejectChunk } from '@codemirror/merge';
 
 /**
  * Base options for unified diff managers
@@ -146,9 +147,20 @@ export abstract class BaseUnifiedDiffManager {
    * Accept all changes
    */
   public acceptAll(): void {
-    // simply accept the current state
-    const sharedModel = this.getSharedModel();
-    this._originalSource = sharedModel.getSource();
+    const view = this.editor?.editor;
+    if (!view) {
+      return;
+    }
+
+    const info = getChunks(view.state);
+    if (!info) {
+      return;
+    }
+
+    for (let i = info.chunks.length - 1; i >= 0; i--) {
+      acceptChunk(view, info.chunks[i].fromB);
+    }
+
     this.deactivate();
   }
 
@@ -156,8 +168,19 @@ export abstract class BaseUnifiedDiffManager {
    * Reject all changes
    */
   public rejectAll(): void {
-    const sharedModel = this.getSharedModel();
-    sharedModel.setSource(this.originalSource);
+    const view = this.editor?.editor;
+    if (!view) {
+      return;
+    }
+
+    const info = getChunks(view.state);
+    if (!info) {
+      return;
+    }
+
+    for (let i = info.chunks.length - 1; i >= 0; i--) {
+      rejectChunk(view, info.chunks[i].fromB);
+    }
     this.deactivate();
   }
 

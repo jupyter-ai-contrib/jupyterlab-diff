@@ -6,6 +6,7 @@ import {
   IBaseUnifiedDiffOptions
 } from './base-unified-diff';
 import type { ISharedText } from '@jupyter/ydoc';
+import { getChunks } from '@codemirror/merge';
 
 /**
  * Options for creating a unified diff view for a cell
@@ -44,7 +45,13 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
    * Check if this cell still has pending changes
    */
   public hasPendingChanges(): boolean {
-    return this.originalSource !== this._cell.model.sharedModel.getSource();
+    const view = this.editor?.editor;
+    if (!view) {
+      return false;
+    }
+
+    const info = getChunks(view.state);
+    return !!info && info.chunks.length > 0;
   }
 
   /**
