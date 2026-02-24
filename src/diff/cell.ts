@@ -69,7 +69,17 @@ class CodeMirrorSplitDiffWidget extends BaseDiffWidget {
           })
         ]
       },
-      parent: this.node
+      parent: this.node,
+      revertControls: 'a-to-b',
+      renderRevertControl: () => {
+        const btn = document.createElement('button');
+        btn.className = 'jp-DiffRevertButton';
+        btn.title = 'Revert to Original';
+        btn.textContent = '🡪';
+        return btn;
+      },
+      gutter: true,
+      highlightChanges: true
     });
   }
 
