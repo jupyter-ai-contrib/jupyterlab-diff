@@ -1,6 +1,9 @@
 # jupyterlab-diff
 
 [![Github Actions Status](https://github.com/jupyter-ai-contrib/jupyterlab-diff/workflows/Build/badge.svg)](https://github.com/jupyter-ai-contrib/jupyterlab-diff/actions/workflows/build.yml)
+[![Version](https://img.shields.io/npm/v/jupyterlab-diff.svg)](https://www.npmjs.com/package/jupyterlab-diff)
+[![Version](https://img.shields.io/pypi/v/jupyterlab-diff.svg)](https://pypi.org/project/jupyterlab-diff/)
+[![Version](https://img.shields.io/conda/vn/conda-forge/jupyterlab-diff.svg)](https://anaconda.org/conda-forge/jupyterlab-diff)
 
 A JupyterLab extension for showing cell diffs with multiple diffing strategies.
 
