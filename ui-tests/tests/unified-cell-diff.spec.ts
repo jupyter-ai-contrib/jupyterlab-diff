@@ -16,9 +16,22 @@ async function setupCellWithUnifiedDiff(
 ) {
   await page.notebook.createNew();
   await page.notebook.setCell(0, 'code', originalSource);
+  await page.notebook.addCell('code', originalSource);
 
   await page.evaluate(
     async ({ originalSource, newSource, command }) => {
+      const notebookPanel = window.jupyterapp.shell
+        .currentWidget as NotebookPanel;
+      const notebook = notebookPanel.content;
+
+      notebook.activeCellIndex = 0;
+      await window.jupyterapp.commands.execute(command, {
+        originalSource,
+        newSource,
+        showActionButtons: true
+      });
+
+      notebook.activeCellIndex = 1;
       await window.jupyterapp.commands.execute(command, {
         originalSource,
         newSource,

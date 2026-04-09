@@ -48,6 +48,23 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
   }
 
   /**
+   * Notify that the diff has been updated
+   */
+  private _notifyDiffUpdated(): void {
+    const event = new CustomEvent('diff-updated', {
+      bubbles: true
+    });
+    this._cell.node.dispatchEvent(event);
+  }
+
+  /**
+   * Handle diff updates
+   */
+  protected onDiffUpdated = () => {
+    this._notifyDiffUpdated();
+  };
+
+  /**
    * Get the shared model for source manipulation
    */
   protected getSharedModel(): ISharedText {
@@ -101,6 +118,8 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       this._toolbarObserver.disconnect();
       this._toolbarObserver = undefined;
     }
+    this._notifyDiffUpdated();
+    this.dispose();
   }
 
   /**
