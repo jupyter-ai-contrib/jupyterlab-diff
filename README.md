@@ -28,7 +28,7 @@ cd jupyterlab-diff
 
 # Install the extension in development mode
 pip install -e .
-jupyter labextension develop . --overwrite
+jupyter-builder develop . --overwrite
 ```
 
 ## Usage

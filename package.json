@@ -32,8 +32,8 @@
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",
         "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
-        "build:labextension": "jupyter labextension build .",
-        "build:labextension:dev": "jupyter labextension build --development True .",
+        "build:labextension": "jupyter-builder build .",
+        "build:labextension:dev": "jupyter-builder build --development True .",
         "build:lib": "tsc --sourceMap",
         "build:lib:prod": "tsc",
         "clean": "jlpm clean:lib",
@@ -53,13 +53,13 @@
         "stylelint:check": "stylelint --cache \"style/**/*.css\"",
         "watch": "run-p watch:src watch:labextension",
         "watch:src": "tsc -w --sourceMap",
-        "watch:labextension": "jupyter labextension watch ."
+        "watch:labextension": "jupyter-builder watch ."
     },
     "dependencies": {
         "@codemirror/lang-python": "^6.2.1",
         "@codemirror/merge": "^6.11.0",
         "@codemirror/view": "^6.38.2",
-        "@jupyter/ydoc": "^3.1.0",
+        "@jupyter/ydoc": "^3.1.0 || ^4.0.0",
         "@jupyterlab/application": "^4.0.0",
         "@jupyterlab/cells": "^4.0.0",
         "@jupyterlab/codeeditor": "^4.0.0",
@@ -75,7 +75,7 @@
         "jupyterlab-cell-input-footer": "^0.3.0"
     },
     "devDependencies": {
-        "@jupyterlab/builder": "^4.0.0",
+        "@jupyter/builder": "^1.0.2",
         "@types/json-schema": "^7.0.11",
         "@types/react": "^18.0.26",
         "@types/react-addons-linked-state-mixin": "^0.14.22",
