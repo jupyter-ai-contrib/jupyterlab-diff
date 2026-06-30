@@ -2,6 +2,38 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.7.0
+
+([Full Changelog](https://github.com/jupyter-ai-contrib/jupyterlab-diff/compare/v0.6.1...50b9550e8d8d3b33f982fb392ef00dda2a8f63d8))
+
+### Enhancements made
+
+- Improve visibility of Bulk change buttons [#44](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/44) ([@nakul-py](https://github.com/nakul-py), [@brichet](https://github.com/brichet), [@krassowski](https://github.com/krassowski))
+- Adding Arrow button to revert a single block changes in cell [#37](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/37) ([@nakul-py](https://github.com/nakul-py), [@brichet](https://github.com/brichet))
+- Making right pane editable and update source on changes. [#36](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/36) ([@nakul-py](https://github.com/nakul-py), [@brichet](https://github.com/brichet))
+- Adding Accept and Reject All buttons for bulk code changes. [#28](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/28) ([@nakul-py](https://github.com/nakul-py), [@Zsailer](https://github.com/Zsailer), [@afshin](https://github.com/afshin), [@jtpio](https://github.com/jtpio))
+
+### Bugs fixed
+
+- [fix] Fixing file editor finding with provided filepath [#41](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/41) ([@nakul-py](https://github.com/nakul-py), [@brichet](https://github.com/brichet))
+
+### Maintenance and upkeep improvements
+
+- Compatibility with jupyterlab >= 4.6.0 [#50](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/50) ([@brichet](https://github.com/brichet), [@jtpio](https://github.com/jtpio), [@trungleduc](https://github.com/trungleduc))
+- Add version badges for npm/PyPI/conda-forge [#47](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/47) ([@krassowski](https://github.com/krassowski), [@jtpio](https://github.com/jtpio))
+- Remove jupyterlab-eventlistener dependency [#46](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/46) ([@krassowski](https://github.com/krassowski), [@jtpio](https://github.com/jtpio))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyter-ai-contrib/jupyterlab-diff/graphs/contributors?from=2025-11-03&to=2026-06-30&type=c))
+
+@afshin ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Aafshin+updated%3A2025-11-03..2026-06-30&type=Issues)) | @brichet ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Abrichet+updated%3A2025-11-03..2026-06-30&type=Issues)) | @jtpio ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Ajtpio+updated%3A2025-11-03..2026-06-30&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Akrassowski+updated%3A2025-11-03..2026-06-30&type=Issues)) | @nakul-py ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Anakul-py+updated%3A2025-11-03..2026-06-30&type=Issues)) | @trungleduc ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Atrungleduc+updated%3A2025-11-03..2026-06-30&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3AZsailer+updated%3A2025-11-03..2026-06-30&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.6.1
 
 ([Full Changelog](https://github.com/jupyter-ai-contrib/jupyterlab-diff/compare/v0.6.0...744decd13a05ff75b7d88bac91ae5df1a672eb51))
@@ -30,8 +62,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-ai-contrib/jupyterlab-diff/graphs/contributors?from=2025-10-23&to=2025-11-03&type=c))
 
 [@jtpio](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Ajtpio+updated%3A2025-10-23..2025-11-03&type=Issues) | [@nakul-py](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Anakul-py+updated%3A2025-10-23..2025-11-03&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3AZsailer+updated%3A2025-10-23..2025-11-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.6.0
 
