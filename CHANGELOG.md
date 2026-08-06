@@ -2,6 +2,52 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.7.1
+
+([Full Changelog](https://github.com/jupyter-ai-contrib/jupyterlab-diff/compare/v0.7.0...cc8f7778eb3b4e7387524fbc6f8a817f818d105e))
+
+### Maintenance and upkeep improvements
+
+- Specify the package manager to fix dependabot PRs [#71](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/71) ([@brichet](https://github.com/brichet))
+
+### Other merged PRs
+
+- Bump minimatch from 9.0.5 to 9.0.9 in /ui-tests [#81](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/81) ([@brichet](https://github.com/brichet))
+- Bump picomatch from 2.3.1 to 2.3.2 in /ui-tests [#80](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/80) ([@brichet](https://github.com/brichet))
+- Bump lodash from 4.17.21 to 4.18.1 in /ui-tests [#79](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/79) ([@brichet](https://github.com/brichet))
+- Bump lodash-es from 4.17.21 to 4.18.1 in /ui-tests [#78](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/78) ([@brichet](https://github.com/brichet))
+- Bump @tootallnate/once from 2.0.0 to 2.0.1 in /ui-tests [#77](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/77) ([@brichet](https://github.com/brichet))
+- Bump ws from 8.18.3 to 8.21.2 in /ui-tests [#76](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/76) ([@brichet](https://github.com/brichet))
+- Bump ajv from 6.12.6 to 6.15.0 [#75](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/75) ([@brichet](https://github.com/brichet))
+- Bump form-data from 4.0.4 to 4.0.6 in /ui-tests [#74](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/74) ([@brichet](https://github.com/brichet))
+- Bump picomatch from 2.3.1 to 2.3.2 [#73](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/73) ([@brichet](https://github.com/brichet))
+- Bump flatted from 3.3.2 to 3.4.4 [#72](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/72) ([@brichet](https://github.com/brichet))
+- Bump fast-uri from 3.1.0 to 3.1.5 in /ui-tests [#70](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/70) ([@brichet](https://github.com/brichet))
+- Bump ip-address from 10.0.1 to 10.4.0 in /ui-tests [#69](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/69) ([@brichet](https://github.com/brichet))
+- Bump fast-uri from 3.0.3 to 3.1.5 [#68](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/68) ([@brichet](https://github.com/brichet))
+- Bump postcss from 8.5.6 to 8.5.25 in /ui-tests [#67](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/67) ([@brichet](https://github.com/brichet))
+- Bump brace-expansion from 2.0.2 to 2.1.4 in /ui-tests [#66](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/66) ([@brichet](https://github.com/brichet))
+- Bump postcss from 8.4.49 to 8.5.25 [#65](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/65) ([@brichet](https://github.com/brichet))
+- Bump brace-expansion from 1.1.11 to 1.1.18 [#63](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/63) ([@brichet](https://github.com/brichet))
+- Bump tar from 7.5.1 to 7.5.22 in /ui-tests [#62](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/62) ([@brichet](https://github.com/brichet))
+- Bump dompurify from 3.4.11 to 3.4.13 in /ui-tests [#60](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/60) ([@brichet](https://github.com/brichet))
+- Bump ws from 8.18.0 to 8.21.2 [#57](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/57) ([@brichet](https://github.com/brichet))
+- Bump js-yaml from 4.1.0 to 4.3.1 [#56](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/56) ([@brichet](https://github.com/brichet))
+- Bump lodash from 4.17.21 to 4.18.1 [#55](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/55) ([@brichet](https://github.com/brichet))
+- Bump lodash-es from 4.17.21 to 4.18.1 [#54](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/54) ([@brichet](https://github.com/brichet))
+- Bump shell-quote from 1.8.2 to 1.10.0 [#52](https://github.com/jupyter-ai-contrib/jupyterlab-diff/pull/52) ([@brichet](https://github.com/brichet))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyter-ai-contrib/jupyterlab-diff/graphs/contributors?from=2026-06-30&to=2026-08-06&type=c))
+
+@brichet ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Abrichet+updated%3A2026-06-30..2026-08-06&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.7.0
 
 ([Full Changelog](https://github.com/jupyter-ai-contrib/jupyterlab-diff/compare/v0.6.1...50b9550e8d8d3b33f982fb392ef00dda2a8f63d8))
@@ -31,8 +77,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyter-ai-contrib/jupyterlab-diff/graphs/contributors?from=2025-11-03&to=2026-06-30&type=c))
 
 @afshin ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Aafshin+updated%3A2025-11-03..2026-06-30&type=Issues)) | @brichet ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Abrichet+updated%3A2025-11-03..2026-06-30&type=Issues)) | @jtpio ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Ajtpio+updated%3A2025-11-03..2026-06-30&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Akrassowski+updated%3A2025-11-03..2026-06-30&type=Issues)) | @nakul-py ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Anakul-py+updated%3A2025-11-03..2026-06-30&type=Issues)) | @trungleduc ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3Atrungleduc+updated%3A2025-11-03..2026-06-30&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyter-ai-contrib%2Fjupyterlab-diff+involves%3AZsailer+updated%3A2025-11-03..2026-06-30&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.6.1
 
