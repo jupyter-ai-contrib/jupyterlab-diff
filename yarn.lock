@@ -2709,9 +2709,9 @@ __metadata:
   linkType: hard
 
 "fast-uri@npm:^3.0.1":
-  version: 3.1.5
-  resolution: "fast-uri@npm:3.1.5"
-  checksum: 8a95af13e0730ac5c3abeb7f3939dee9fa95f2652e0ebac7a072b5597f836200084340c9bc2030f392318cdb49ec04e3fd6f558fa24c58d6d373557b9c01d7fb
+  version: 3.1.8
+  resolution: "fast-uri@npm:3.1.8"
+  checksum: 3319c50163d6d1265d1fd06f677e0d24a4cc4312c48c7222a0dc6641b90463c4476cb83f3c7444e0d1d0cd123d330d300ea46c48386f6924f35c34f6dd865416
   languageName: node
   linkType: hard
 
@@ -3699,11 +3699,11 @@ __metadata:
   linkType: hard
 
 "nanoid@npm:^3.3.16, nanoid@npm:^3.3.7":
-  version: 3.3.17
-  resolution: "nanoid@npm:3.3.17"
+  version: 3.3.18
+  resolution: "nanoid@npm:3.3.18"
   bin:
     nanoid: bin/nanoid.cjs
-  checksum: dbbfd5ccc15a9bce602797ee75b98ee5ad377bd217782b8d2e7438e6e0ba0c54529a9f60437910aa00e263224b3c074b51a1aa3e21084a3cb56347a6cbacc275
+  checksum: db804317d337b41602666f23014e399d1263033d13a903955c246378256fd4e002519e87199ca40b19aff52274965ac7cc6e70c13a63e194e15c4664724602d3
   languageName: node
   linkType: hard
 
@@ -3973,12 +3973,12 @@ __metadata:
   linkType: hard
 
 "postcss-selector-parser@npm:^6.0.13":
-  version: 6.1.2
-  resolution: "postcss-selector-parser@npm:6.1.2"
+  version: 6.1.4
+  resolution: "postcss-selector-parser@npm:6.1.4"
   dependencies:
     cssesc: ^3.0.0
     util-deprecate: ^1.0.2
-  checksum: ce9440fc42a5419d103f4c7c1847cb75488f3ac9cbe81093b408ee9701193a509f664b4d10a2b4d82c694ee7495e022f8f482d254f92b7ffd9ed9dea696c6f84
+  checksum: 6dac8996778480a4cd274d2588cccfd989f38c40853b7b83dc31c90ce6ba32e1e1b89811ad3beafdee72887fac9ddf9f1fca3876dc17467eed62d6a825d54bfb
   languageName: node
   linkType: hard
 

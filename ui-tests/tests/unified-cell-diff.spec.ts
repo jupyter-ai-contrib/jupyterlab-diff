@@ -106,4 +106,66 @@ test.describe('Unified Cell Diff Extension', () => {
     const cellContent = await getCellContent(page);
     expect(cellContent).toBe(originalSource);
   });
+
+  test('should show merge accept and reject buttons', async ({ page }) => {
+    const originalSource = 'a = 1\nb = 2';
+    const newSource = 'a = 10\nb = 20';
+
+    await setupCellWithUnifiedDiff(page, originalSource, newSource);
+
+    const acceptButtons = page.locator('.jp-merge-accept-button');
+    const rejectButtons = page.locator('.jp-merge-reject-button');
+
+    await expect(acceptButtons.first()).toBeVisible();
+    await expect(rejectButtons.first()).toBeVisible();
+  });
+
+  test('should render two merge chunks in a single cell', async ({ page }) => {
+    const originalSource = 'a = 1\n \nb = 2\nc = 3';
+    const newSource = 'a = 10\n \nb = 20\nc = 30';
+
+    await setupCellWithUnifiedDiff(page, originalSource, newSource);
+
+    const firstCell = page.locator('.jp-Cell').first();
+
+    const acceptButtons = firstCell.locator('.jp-merge-accept-button');
+    const rejectButtons = firstCell.locator('.jp-merge-reject-button');
+
+    await expect(acceptButtons).toHaveCount(2);
+    await expect(rejectButtons).toHaveCount(2);
+  });
+
+  test('should accept a single diff hunk using merge accept button', async ({
+    page
+  }) => {
+    const originalSource = 'a = 1\nb = 2';
+    const newSource = 'a = 10\nb = 2';
+
+    await setupCellWithUnifiedDiff(page, originalSource, newSource);
+
+    const firstAccept = page.locator('.jp-merge-accept-button').first();
+    await firstAccept.click();
+
+    const cellContent = await getCellContent(page);
+
+    expect(cellContent).toContain('a = 10');
+    expect(cellContent).toContain('b = 2');
+  });
+
+  test('should reject a single diff hunk using merge reject button', async ({
+    page
+  }) => {
+    const originalSource = 'a = 1\nb = 2';
+    const newSource = 'a = 10\nb = 2';
+
+    await setupCellWithUnifiedDiff(page, originalSource, newSource);
+
+    const firstReject = page.locator('.jp-merge-reject-button').first();
+    await firstReject.click();
+
+    const cellContent = await getCellContent(page);
+
+    expect(cellContent).toContain('a = 1');
+    expect(cellContent).toContain('b = 2');
+  });
 });
