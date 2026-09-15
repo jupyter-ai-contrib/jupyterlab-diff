@@ -123,3 +123,4 @@ dmypy.json
 # Integration tests
 ui-tests/test-results/
 ui-tests/playwright-report/
+.jupyterlite.doit.db
