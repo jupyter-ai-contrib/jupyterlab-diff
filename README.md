@@ -4,12 +4,22 @@
 [![version on npm](https://img.shields.io/npm/v/jupyterlab-diff.svg)](https://www.npmjs.com/package/jupyterlab-diff)
 [![version on PyPI](https://img.shields.io/pypi/v/jupyterlab-diff.svg)](https://pypi.org/project/jupyterlab-diff/)
 [![version on conda-forge](https://img.shields.io/conda/vn/conda-forge/jupyterlab-diff.svg)](https://anaconda.org/conda-forge/jupyterlab-diff)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyter-ai-contrib.github.io/jupyterlab-diff/lab/index.html?path=diff-demo.ipynb)
 
 A JupyterLab extension for showing cell diffs with multiple diffing strategies.
 
 ## Requirements
 
 - JupyterLab >= 4.0.0
+
+## Try it in your browser
+
+You can try the extension directly in your browser using JupyterLite:
+
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyter-ai-contrib.github.io/jupyterlab-diff/lab/index.html?path=diff-demo.ipynb)
+
+The demo site is deployed to GitHub Pages from the [demo](./demo) folder and includes a
+notebook demonstrating the different diff commands.
 
 ## Installation
 
