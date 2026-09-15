@@ -51,6 +51,7 @@
         "prettier:check": "jlpm prettier:base --check",
         "stylelint": "jlpm stylelint:check --fix",
         "stylelint:check": "stylelint --cache \"style/**/*.css\"",
+        "test": "node --test \"tests/**/*.test.ts\"",
         "watch": "run-p watch:src watch:labextension",
         "watch:src": "tsc -w --sourceMap",
         "watch:labextension": "jupyter-builder watch ."
@@ -68,8 +69,10 @@
         "@jupyterlab/fileeditor": "^4.0.0",
         "@jupyterlab/notebook": "^4.0.0",
         "@jupyterlab/services": "^7.0.0",
+        "@jupyterlab/settingregistry": "^4.0.0",
         "@jupyterlab/translation": "^4.0.0",
         "@jupyterlab/ui-components": "^4.0.0",
+        "@lumino/signaling": "^2.0.0",
         "@lumino/widgets": "^2.0.0",
         "codemirror": "^6.0.2",
         "jupyterlab-cell-input-footer": "^0.3.0"
@@ -99,6 +102,9 @@
         "typescript": "~5.0.2",
         "yjs": "^13.5.0"
     },
+    "resolutions": {
+        "@lumino/coreutils": "^2.2.1"
+    },
     "sideEffects": [
         "style/*.css",
         "style/index.js"
@@ -119,7 +125,8 @@
             }
         },
         "extension": true,
-        "outputDir": "jupyterlab_diff/labextension"
+        "outputDir": "jupyterlab_diff/labextension",
+        "schemaDir": "schema"
     },
     "eslintIgnore": [
         "node_modules",
