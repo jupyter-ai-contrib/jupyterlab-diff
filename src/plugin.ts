@@ -20,6 +20,12 @@ import {
   UnifiedFileDiffManager
 } from './diff/unified-file';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import {
+  clearNotebookManagers,
+  getNotebookManagers,
+  registerNotebookManager
+} from './diff/notebook-registry';
+import metadataDiffPlugin from './metadata-diff/plugin';
 
 /**
  * The translation namespace for the plugin.
@@ -65,44 +71,11 @@ export function findCell(
 }
 
 /**
- * Registry for notebook-level diff managers
+ * Registry for notebook-level diff managers.
+ *
+ * The registry itself lives in `./diff/notebook-registry` so the metadata-diff
+ * observer can share it without a circular import.
  */
-const notebookDiffRegistry = new Map<string, UnifiedCellDiffManager[]>();
-
-let registerCellManager = (
-  notebookId: string,
-  manager: UnifiedCellDiffManager
-): void => {
-  if (!notebookDiffRegistry.has(notebookId)) {
-    notebookDiffRegistry.set(notebookId, []);
-  }
-  notebookDiffRegistry.get(notebookId)!.push(manager);
-
-  originalManager(notebookId, manager);
-};
-
-function getNotebookManagers(notebookId: string) {
-  return notebookDiffRegistry.get(notebookId) || [];
-}
-
-function clearNotebookManagers(notebookId: string) {
-  notebookDiffRegistry.delete(notebookId);
-}
-
-/**
- * Remove the manager from the notebook diff registry
- */
-function originalManager(notebookId: string, manager: UnifiedCellDiffManager) {
-  const originalDispose = manager.dispose.bind(manager);
-  manager.dispose = () => {
-    originalDispose();
-    const list = notebookDiffRegistry.get(notebookId) ?? [];
-    notebookDiffRegistry.set(
-      notebookId,
-      list.filter(m => m !== manager)
-    );
-  };
-}
 
 /**
  * Split cell diff plugin - shows side-by-side comparison
@@ -333,7 +306,9 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
         });
         cellDiffManagers.set(cell.id, manager);
 
-        registerCellManager(currentNotebook.id, manager);
+        registerNotebookManager(currentNotebook.id, manager);
+        // Notify the floating panel so it can recount pending diffs.
+        currentNotebook.node.dispatchEvent(new Event('diff-updated'));
       }
     });
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
@@ -395,13 +370,6 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
       });
 
       notebookPanel.node.addEventListener('diff-updated', updateFloatingPanel);
-
-      const originalRegister = registerCellManager;
-      registerCellManager = (nid: string, manager: UnifiedCellDiffManager) => {
-        originalRegister(nid, manager);
-        const event = new Event('diff-updated');
-        notebookPanel.node.dispatchEvent(event);
-      };
     });
   }
 };
@@ -528,5 +496,6 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
 export default [
   splitCellDiffPlugin,
   unifiedCellDiffPlugin,
-  unifiedFileDiffPlugin
+  unifiedFileDiffPlugin,
+  metadataDiffPlugin
 ];

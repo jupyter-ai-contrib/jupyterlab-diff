@@ -3,6 +3,7 @@ import { EditorView } from '@codemirror/view';
 import { Compartment } from '@codemirror/state';
 import { TranslationBundle } from '@jupyterlab/translation';
 import { ToolbarButton } from '@jupyterlab/ui-components';
+import { ISignal, Signal } from '@lumino/signaling';
 import { applyDiff } from './utils';
 import type { ISharedText } from '@jupyter/ydoc';
 
@@ -39,6 +40,11 @@ export interface IBaseUnifiedDiffOptions {
    * Whether to allow inline diffs
    */
   allowInlineDiffs?: boolean;
+
+  /**
+   * Whether to show the per-chunk merge accept/reject controls (default true).
+   */
+  showMergeControls?: boolean;
 }
 
 /**
@@ -55,6 +61,7 @@ export abstract class BaseUnifiedDiffManager {
     this.trans = options.trans;
     this.showActionButtons = options.showActionButtons ?? true;
     this.allowInlineDiffs = options.allowInlineDiffs ?? false;
+    this.showMergeControls = options.showMergeControls ?? true;
     this._isInitialized = false;
     this._isDisposed = false;
     this._diffCompartment = new Compartment();
@@ -68,6 +75,17 @@ export abstract class BaseUnifiedDiffManager {
   }
 
   /**
+   * A signal emitted when the manager is disposed.
+   *
+   * Lets consumers (e.g. the notebook-level registry) drop their reference
+   * without wrapping `dispose` — the manager also disposes itself on
+   * accept/reject, so an external unregister call is not enough.
+   */
+  get disposed(): ISignal<this, void> {
+    return this._disposed;
+  }
+
+  /**
    * Dispose of the manager and clean up resources
    */
   dispose(): void {
@@ -76,6 +94,8 @@ export abstract class BaseUnifiedDiffManager {
     }
     this._isDisposed = true;
     this.deactivate();
+    this._disposed.emit();
+    Signal.clearData(this);
   }
 
   /**
@@ -167,6 +187,18 @@ export abstract class BaseUnifiedDiffManager {
   }
 
   /**
+   * Handle the merge view reporting that all chunks have been resolved.
+   *
+   * The default behaviour simply tears the diff view down. Subclasses may
+   * override to perform additional bookkeeping (for example, clearing a
+   * pending diff marker) before deactivating.
+   */
+  protected handleChunksResolved(): void {
+    this.deactivate();
+    this.onDiffUpdated?.();
+  }
+
+  /**
    * Apply the diff to the editor
    */
   private _applyDiff(): void {
@@ -184,10 +216,10 @@ export abstract class BaseUnifiedDiffManager {
       isInitialized: this._isInitialized,
       sharedModel: this.getSharedModel(),
       onChunkChange: () => {
-        this.deactivate();
-        this.onDiffUpdated?.();
+        this.handleChunksResolved();
       },
-      allowInlineDiffs: this.allowInlineDiffs
+      allowInlineDiffs: this.allowInlineDiffs,
+      showMergeControls: this.showMergeControls
     });
 
     this._isInitialized = true;
@@ -204,11 +236,13 @@ export abstract class BaseUnifiedDiffManager {
   protected trans: TranslationBundle;
   protected showActionButtons: boolean;
   protected allowInlineDiffs: boolean;
+  protected showMergeControls: boolean;
   protected acceptAllButton: ToolbarButton | null = null;
   protected rejectAllButton: ToolbarButton | null = null;
   private _newSource: string;
   private _isInitialized: boolean;
   private _isDisposed: boolean;
+  private _disposed = new Signal<this, void>(this);
   private _diffCompartment: Compartment;
   private _originalSource: string;
 }
