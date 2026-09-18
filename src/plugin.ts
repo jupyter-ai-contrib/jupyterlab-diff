@@ -170,7 +170,7 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           openDiff = true
         } = args;
 
-        if (!originalSource || !newSource) {
+        if (originalSource === null && newSource === null) {
           console.error(
             trans.__('Missing required arguments: originalSource and newSource')
           );
@@ -283,7 +283,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           notebookPath
         } = args;
 
-        if (!originalSource || !newSource) {
+        if (originalSource === null && newSource === null) {
           console.error(
             trans.__('Missing required arguments: originalSource and newSource')
           );
@@ -471,7 +471,7 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
           allowInlineDiffs = false
         } = args;
 
-        if (!originalSource || !newSource) {
+        if (originalSource === null && newSource === null) {
           console.error(
             trans.__('Missing required arguments: originalSource and newSource')
           );
