@@ -1,5 +1,7 @@
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { FileEditor } from '@jupyterlab/fileeditor';
+import { TranslationBundle } from '@jupyterlab/translation';
 import {
   checkIcon,
   Toolbar,
@@ -7,47 +9,95 @@ import {
   undoIcon
 } from '@jupyterlab/ui-components';
 import { Widget } from '@lumino/widgets';
-import {
-  BaseUnifiedDiffManager,
-  IBaseUnifiedDiffOptions
-} from './base-unified-diff';
-import type { ISharedText } from '@jupyter/ydoc';
+import { Compartment } from '@codemirror/state';
+import { applyDiff } from './utils';
 
-/**
- * Options for applying a unified diff to a file editor
- */
-export interface IUnifiedFileDiffOptions extends IBaseUnifiedDiffOptions {
-  /**
-   * The file editor widget (IDocumentWidget containing the editor)
-   */
+export interface IUnifiedFileDiffOptions {
+  editor: CodeMirrorEditor;
   fileEditorWidget?: IDocumentWidget<FileEditor>;
+  originalSource: string;
+  newSource: string;
+  trans: TranslationBundle;
+  showActionButtons?: boolean;
+  allowInlineDiffs?: boolean;
 }
 
-/**
- * Manages unified file diffs in the editor using CodeMirror compartments
- */
-export class UnifiedFileDiffManager extends BaseUnifiedDiffManager {
-  /**
-   * Construct a new UnifiedFileDiffManager
-   */
+export class UnifiedFileDiffManager {
   constructor(options: IUnifiedFileDiffOptions) {
-    super(options);
+    this._editor = options.editor;
     this._fileEditorWidget = options.fileEditorWidget;
-    this.activate();
+    this._originalSource = options.originalSource;
+    this._newSource = options.newSource;
+    this._trans = options.trans;
+    this._showActionButtons = options.showActionButtons ?? true;
+    this._allowInlineDiffs = options.allowInlineDiffs ?? false;
+    this._activate();
   }
 
-  /**
-   * Get the shared model for source manipulation
-   */
-  protected getSharedModel(): ISharedText {
-    return this.editor.model.sharedModel;
+  get isDisposed(): boolean {
+    return this._isDisposed;
   }
 
-  /**
-   * Add toolbar buttons to the file editor toolbar
-   */
-  protected addToolbarButtons(): void {
-    if (!this._fileEditorWidget || !this.showActionButtons) {
+  dispose(): void {
+    if (this._isDisposed) {
+      return;
+    }
+    this._isDisposed = true;
+    this._deactivate();
+  }
+
+  acceptAll(): void {
+    this._originalSource = this._editor.model.sharedModel.getSource();
+    this._deactivate();
+  }
+
+  rejectAll(): void {
+    this._editor.model.sharedModel.setSource(this._originalSource);
+    this._deactivate();
+  }
+
+  private _activate(): void {
+    this._applyDiff();
+    this._addToolbarButtons();
+  }
+
+  private _deactivate(): void {
+    this._removeToolbarButtons();
+    this._cleanupEditor();
+  }
+
+  private _applyDiff(): void {
+    const editorView = this._editor?.editor;
+    if (!editorView) {
+      return;
+    }
+
+    applyDiff({
+      editorView,
+      compartment: this._diffCompartment,
+      originalSource: this._originalSource,
+      newSource: this._newSource,
+      isInitialized: this._isInitialized,
+      sharedModel: this._editor.model.sharedModel,
+      onChunkChange: () => this._deactivate(),
+      allowInlineDiffs: this._allowInlineDiffs
+    });
+
+    this._isInitialized = true;
+  }
+
+  private _cleanupEditor(): void {
+    const editorView = this._editor?.editor;
+    if (!editorView) {
+      return;
+    }
+    editorView.dispatch({
+      effects: [this._diffCompartment.reconfigure([])]
+    });
+  }
+
+  private _addToolbarButtons(): void {
+    if (!this._fileEditorWidget || !this._showActionButtons) {
       return;
     }
 
@@ -56,41 +106,34 @@ export class UnifiedFileDiffManager extends BaseUnifiedDiffManager {
       return;
     }
 
-    // Show the toolbar
     toolbar.node.hidden = false;
 
-    // Create a spacer to push buttons to the right
     this._spacer = Toolbar.createSpacerItem();
 
-    // Accept all button
-    this.acceptAllButton = new ToolbarButton({
+    this._acceptAllButton = new ToolbarButton({
       icon: checkIcon,
-      label: this.trans.__('Accept All'),
-      tooltip: this.trans.__('Accept all chunks'),
+      label: this._trans.__('Accept All'),
+      tooltip: this._trans.__('Accept all chunks'),
       enabled: true,
       className: 'jp-UnifiedFileDiff-acceptAll',
       onClick: () => this.acceptAll()
     });
 
-    // Reject all button
-    this.rejectAllButton = new ToolbarButton({
+    this._rejectAllButton = new ToolbarButton({
       icon: undoIcon,
-      label: this.trans.__('Reject All'),
-      tooltip: this.trans.__('Reject all chunks'),
+      label: this._trans.__('Reject All'),
+      tooltip: this._trans.__('Reject all chunks'),
       enabled: true,
       className: 'jp-UnifiedFileDiff-rejectAll',
       onClick: () => this.rejectAll()
     });
 
     toolbar.addItem('diff-spacer', this._spacer);
-    toolbar.addItem('reject-all-diff', this.rejectAllButton);
-    toolbar.addItem('accept-all-diff', this.acceptAllButton);
+    toolbar.addItem('reject-all-diff', this._rejectAllButton);
+    toolbar.addItem('accept-all-diff', this._acceptAllButton);
   }
 
-  /**
-   * Remove toolbar buttons from the file editor toolbar
-   */
-  protected removeToolbarButtons(): void {
+  private _removeToolbarButtons(): void {
     if (!this._fileEditorWidget) {
       return;
     }
@@ -100,40 +143,42 @@ export class UnifiedFileDiffManager extends BaseUnifiedDiffManager {
       return;
     }
 
-    // Remove and dispose items only if they were added
-    if (this.showActionButtons) {
-      // Dispose of the spacer
+    if (this._showActionButtons) {
       if (this._spacer) {
         this._spacer.dispose();
         this._spacer = null;
       }
-
-      // Dispose of the buttons
-      if (this.acceptAllButton) {
-        this.acceptAllButton.dispose();
-        this.acceptAllButton = null;
+      if (this._acceptAllButton) {
+        this._acceptAllButton.dispose();
+        this._acceptAllButton = null;
       }
-      if (this.rejectAllButton) {
-        this.rejectAllButton.dispose();
-        this.rejectAllButton = null;
+      if (this._rejectAllButton) {
+        this._rejectAllButton.dispose();
+        this._rejectAllButton = null;
       }
     }
 
-    // Check if there are any remaining items in the toolbar
-    // If not, hide the toolbar
     const remainingItems = Array.from(toolbar.names());
     if (remainingItems.length === 0) {
       toolbar.node.hidden = true;
     }
   }
 
+  private _editor: CodeMirrorEditor;
   private _fileEditorWidget?: IDocumentWidget<FileEditor>;
+  private _originalSource: string;
+  private _newSource: string;
+  private _trans: TranslationBundle;
+  private _showActionButtons: boolean;
+  private _allowInlineDiffs: boolean;
+  private _diffCompartment = new Compartment();
+  private _isInitialized = false;
+  private _isDisposed = false;
   private _spacer: Widget | null = null;
+  private _acceptAllButton: ToolbarButton | null = null;
+  private _rejectAllButton: ToolbarButton | null = null;
 }
 
-/**
- * Create a unified diff view for a file editor
- */
 export async function createUnifiedFileDiff(
   options: IUnifiedFileDiffOptions
 ): Promise<UnifiedFileDiffManager> {

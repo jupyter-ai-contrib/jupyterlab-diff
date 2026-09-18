@@ -79,7 +79,8 @@
 }
 
 /* Hide cell toolbar during unified diff */
-.jp-unified-diff-cell .jp-cell-toolbar {
+.jp-unified-diff-cell .jp-cell-toolbar,
+.jp-diff-added-cell .jp-cell-toolbar {
   display: none;
 }
 
@@ -125,6 +126,12 @@
 
 .jp-unified-diff-floating-panel .jp-merge-reject-button:hover {
   background-color: var(--jp-error-color0);
+}
+
+/* Highlight a cell that was added (action='add') */
+.jp-diff-added-cell {
+  background-color: rgb(0 128 0 / 8%);
+  border-left: 3px solid rgb(0 128 0 / 50%);
 }
 
 .jp-DiffRevertButton {
