@@ -122,6 +122,12 @@
   background-color: var(--jp-error-color0);
 }
 
+/* Highlight a cell that was added (action='add') */
+.jp-diff-added-cell {
+  background-color: rgb(0 128 0 / 8%);
+  border-left: 3px solid rgb(0 128 0 / 50%);
+}
+
 .jp-DiffRevertButton {
   background: var(--jp-layout-color1);
   padding: 4px 6px;

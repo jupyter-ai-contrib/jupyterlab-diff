@@ -11,15 +11,16 @@ import { IDocumentWidget } from '@jupyterlab/docregistry';
 
 import { IDiffWidgetOptions } from './widget';
 import { createCodeMirrorSplitDiffWidget } from './diff/cell';
-import {
-  createUnifiedCellDiffView,
-  UnifiedCellDiffManager
-} from './diff/unified-cell';
+import { createUnifiedCellDiffView } from './diff/unified-cell';
+import { AddedCellDiffManager } from './diff/added-cell';
+import { BaseCellDiffManager } from './diff/base-cell-diff';
 import {
   createUnifiedFileDiff,
   UnifiedFileDiffManager
 } from './diff/unified-file';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+
+type DiffAction = 'edit' | 'add';
 
 /**
  * The translation namespace for the plugin.
@@ -36,7 +37,6 @@ export function findNotebook(
   const notebook = notebookTracker.find(
     widget => widget.context.path === notebookPath
   );
-
   return notebook ?? notebookTracker.currentWidget;
 }
 
@@ -67,11 +67,11 @@ export function findCell(
 /**
  * Registry for notebook-level diff managers
  */
-const notebookDiffRegistry = new Map<string, UnifiedCellDiffManager[]>();
+const notebookDiffRegistry = new Map<string, BaseCellDiffManager[]>();
 
 let registerCellManager = (
   notebookId: string,
-  manager: UnifiedCellDiffManager
+  manager: BaseCellDiffManager
 ): void => {
   if (!notebookDiffRegistry.has(notebookId)) {
     notebookDiffRegistry.set(notebookId, []);
@@ -92,7 +92,7 @@ function clearNotebookManagers(notebookId: string) {
 /**
  * Remove the manager from the notebook diff registry
  */
-function originalManager(notebookId: string, manager: UnifiedCellDiffManager) {
+function originalManager(notebookId: string, manager: BaseCellDiffManager) {
   const originalDispose = manager.dispose.bind(manager);
   manager.dispose = () => {
     originalDispose();
@@ -155,9 +155,16 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
               description: trans.__(
                 'Whether to open the diff widget automatically'
               )
+            },
+            action: {
+              type: 'string',
+              enum: ['edit', 'add'],
+              description: trans.__(
+                "Diff action: 'edit' for content changes, 'add' for a newly added cell"
+              )
             }
           },
-          required: ['originalSource', 'newSource']
+          required: []
         }
       },
       execute: async (args: any = {}) => {
@@ -165,13 +172,17 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           cellId,
           showActionButtons = true,
           notebookPath,
-          openDiff = true
+          openDiff = true,
+          action = 'edit' as DiffAction
         } = args;
 
         const originalSource = args.originalSource ?? null;
         const newSource = args.newSource ?? null;
 
-        if (originalSource === null || newSource === null) {
+        if (
+          action === 'edit' &&
+          (originalSource === null || newSource === null)
+        ) {
           console.error(
             trans.__('Missing required arguments: originalSource and newSource')
           );
@@ -190,6 +201,24 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
               'Missing required arguments: cellId (or no active cell found)'
             )
           );
+          return;
+        }
+
+        if (action === 'add') {
+          const cellWidget = currentNotebook.content.widgets.find(
+            widget => widget.model.id === cell.id
+          );
+          if (!cellWidget) {
+            console.error(trans.__('No widget found for cell %1', cell.id));
+            return;
+          }
+          new AddedCellDiffManager({
+            cell: cellWidget,
+            cellFooterTracker,
+            notebookPanel: currentNotebook,
+            showActionButtons,
+            trans
+          });
           return;
         }
 
@@ -234,7 +263,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
     const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
 
     // Track active unified diff managers to avoid creating duplicates
-    const cellDiffManagers = new Map<string, UnifiedCellDiffManager>();
+    const cellDiffManagers = new Map<string, BaseCellDiffManager>();
 
     commands.addCommand('jupyterlab-diff:unified-cell-diff', {
       label: trans.__('Show Cell Diff (Unified)'),
@@ -269,9 +298,16 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
             notebookPath: {
               type: 'string',
               description: trans.__('Path to the notebook containing the cell')
+            },
+            action: {
+              type: 'string',
+              enum: ['edit', 'add'],
+              description: trans.__(
+                "Diff action: 'edit' for content changes, 'add' for a newly added cell"
+              )
             }
           },
-          required: ['originalSource', 'newSource']
+          required: []
         }
       },
       execute: async (args: any = {}) => {
@@ -279,13 +315,17 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           cellId,
           showActionButtons = true,
           allowInlineDiffs = false,
-          notebookPath
+          notebookPath,
+          action = 'edit' as DiffAction
         } = args;
 
         const originalSource = args.originalSource ?? null;
         const newSource = args.newSource ?? null;
 
-        if (originalSource === null || newSource === null) {
+        if (
+          action === 'edit' &&
+          (originalSource === null || newSource === null)
+        ) {
           console.error(
             trans.__('Missing required arguments: originalSource and newSource')
           );
@@ -311,8 +351,8 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
         const cellWidget = currentNotebook.content.widgets.find(
           widget => widget.model.id === cell.id
         );
-        if (!cellWidget || !cellWidget.editor) {
-          console.error(trans.__('No editor found for cell %1', cell.id));
+        if (!cellWidget) {
+          console.error(trans.__('No widget found for cell %1', cell.id));
           return;
         }
 
@@ -323,21 +363,38 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
         }
 
         // Create a new manager
-        const manager = await createUnifiedCellDiffView({
-          cell: cellWidget,
-          editor: cellWidget.editor as CodeMirrorEditor,
-          cellFooterTracker,
-          originalSource,
-          newSource,
-          showActionButtons,
-          allowInlineDiffs,
-          trans
-        });
-        cellDiffManagers.set(cell.id, manager);
+        let manager: BaseCellDiffManager;
 
+        if (action === 'add') {
+          manager = new AddedCellDiffManager({
+            cell: cellWidget,
+            cellFooterTracker,
+            notebookPanel: currentNotebook,
+            showActionButtons,
+            trans
+          });
+        } else {
+          if (!cellWidget.editor) {
+            console.error(trans.__('No editor found for cell %1', cell.id));
+            return;
+          }
+          manager = await createUnifiedCellDiffView({
+            cell: cellWidget,
+            editor: cellWidget.editor as CodeMirrorEditor,
+            cellFooterTracker,
+            originalSource,
+            newSource,
+            showActionButtons,
+            allowInlineDiffs,
+            trans
+          });
+        }
+
+        cellDiffManagers.set(cell.id, manager);
         registerCellManager(currentNotebook.id, manager);
       }
     });
+
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
       const notebookId = notebookPanel.id;
 
@@ -399,7 +456,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
       notebookPanel.node.addEventListener('diff-updated', updateFloatingPanel);
 
       const originalRegister = registerCellManager;
-      registerCellManager = (nid: string, manager: UnifiedCellDiffManager) => {
+      registerCellManager = (nid: string, manager: BaseCellDiffManager) => {
         originalRegister(nid, manager);
         const event = new Event('diff-updated');
         notebookPanel.node.dispatchEvent(event);

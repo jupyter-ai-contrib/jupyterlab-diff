@@ -1,79 +1,48 @@
-import { Cell, MarkdownCell } from '@jupyterlab/cells';
-import { checkIcon, ToolbarButton, undoIcon } from '@jupyterlab/ui-components';
-import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
-import {
-  BaseUnifiedDiffManager,
-  IBaseUnifiedDiffOptions
-} from './base-unified-diff';
-import type { ISharedText } from '@jupyter/ydoc';
+import { MarkdownCell } from '@jupyterlab/cells';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { Compartment } from '@codemirror/state';
+import { applyDiff } from './utils';
+import { BaseCellDiffManager, IBaseCellDiffOptions } from './base-cell-diff';
 
-/**
- * Options for creating a unified diff view for a cell
- */
-export interface IUnifiedCellDiffOptions extends IBaseUnifiedDiffOptions {
-  /**
-   * The cell widget to show the diff for
-   */
-  cell: Cell;
-
-  /**
-   * The cell footer tracker
-   */
-  cellFooterTracker?: ICellFooterTracker;
+export interface IUnifiedCellDiffOptions extends IBaseCellDiffOptions {
+  editor: CodeMirrorEditor;
+  originalSource: string;
+  newSource: string;
+  allowInlineDiffs?: boolean;
 }
 
-/**
- * Manages unified diff view directly in cell editors
- */
-export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
-  /**
-   * Construct a new UnifiedCellDiffManager
-   */
+export class UnifiedCellDiffManager extends BaseCellDiffManager {
   constructor(options: IUnifiedCellDiffOptions) {
     super(options);
-    this._cell = options.cell;
-    this._cellFooterTracker = options.cellFooterTracker;
+    this._editor = options.editor;
+    this._originalSource = options.originalSource;
+    this._newSource = options.newSource;
+    this._allowInlineDiffs = options.allowInlineDiffs ?? false;
     this.activate();
   }
 
-  private static _activeDiffCount = 0;
-  private _toolbarObserver?: MutationObserver;
+  private _editor: CodeMirrorEditor;
+  private _originalSource: string;
+  private _newSource: string;
+  private _allowInlineDiffs: boolean;
+  private _diffCompartment = new Compartment();
+  private _isInitialized = false;
   private _wasRendered = false;
 
-  /**
-   * Check if this cell still has pending changes
-   */
-  public hasPendingChanges(): boolean {
-    return this.originalSource !== this._cell.model.sharedModel.getSource();
+  hasPendingChanges(): boolean {
+    return this._originalSource !== this._cell.model.sharedModel.getSource();
   }
 
-  /**
-   * Notify that the diff has been updated
-   */
-  private _notifyDiffUpdated(): void {
-    const event = new CustomEvent('diff-updated', {
-      bubbles: true
-    });
-    this._cell.node.dispatchEvent(event);
+  acceptAll(): void {
+    this._originalSource = this._cell.model.sharedModel.getSource();
+    this.deactivate();
   }
 
-  /**
-   * Handle diff updates
-   */
-  protected onDiffUpdated = () => {
-    this._notifyDiffUpdated();
-  };
-
-  /**
-   * Get the shared model for source manipulation
-   */
-  protected getSharedModel(): ISharedText {
-    return this._cell.model.sharedModel;
+  rejectAll(): void {
+    this._cell.model.sharedModel.setSource(this._originalSource);
+    this.deactivate();
   }
 
-  /**
-   * Activate the diff view without cell toolbar.
-   */
   protected activate(): void {
     const { model } = this._cell;
     if (model.type === 'markdown') {
@@ -84,150 +53,63 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       }
     }
 
-    super.activate();
-    UnifiedCellDiffManager._activeDiffCount++;
-
-    const observer = new MutationObserver(() => {
-      this.hideCellToolbar();
-    });
-
-    observer.observe(this._cell.node, {
-      childList: true,
-      subtree: true
-    });
-
-    this._toolbarObserver = observer;
+    this._applyDiff();
+    BaseCellDiffManager._activeDiffCount++;
+    this._setupToolbarObserver();
+    this.addToolbarButtons();
+    this.hideCellToolbar();
   }
 
-  /**
-   * Deactivate the diff view with cell toolbar.
-   */
   protected deactivate(): void {
-    super.deactivate();
-    UnifiedCellDiffManager._activeDiffCount = Math.max(
-      0,
-      UnifiedCellDiffManager._activeDiffCount - 1
-    );
+    this._cleanupEditor();
 
     if (this._wasRendered && this._cell.model.type === 'markdown') {
       (this._cell as MarkdownCell).rendered = true;
       this._wasRendered = false;
     }
 
-    if (this._toolbarObserver) {
-      this._toolbarObserver.disconnect();
-      this._toolbarObserver = undefined;
-    }
+    this.removeToolbarButtons();
+    this.showCellToolbar();
+    BaseCellDiffManager._activeDiffCount = Math.max(
+      0,
+      BaseCellDiffManager._activeDiffCount - 1
+    );
+    this._teardownToolbarObserver();
     this._notifyDiffUpdated();
     this.dispose();
   }
 
-  /**
-   * Hide the cell's toolbar while the diff is active
-   */
-  protected hideCellToolbar(): void {
-    const toolbar = this._cell.node.querySelector(
-      'jp-toolbar'
-    ) as HTMLElement | null;
-    if (toolbar) {
-      toolbar.style.display = 'none';
-    }
-  }
-
-  /**
-   * Show the cell's toolbar when the diff is deactivated
-   */
-  protected showCellToolbar(): void {
-    if (UnifiedCellDiffManager._activeDiffCount > 0) {
-      return;
-    }
-    const toolbar = this._cell.node.querySelector(
-      'jp-toolbar'
-    ) as HTMLElement | null;
-    if (toolbar) {
-      toolbar.style.display = '';
-    }
-  }
-
-  /**
-   * Add toolbar buttons to the cell footer
-   */
-  protected addToolbarButtons(): void {
-    if (!this._cellFooterTracker || !this._cell) {
+  private _applyDiff(): void {
+    const editorView = this._editor?.editor;
+    if (!editorView) {
       return;
     }
 
-    if (!this.hasPendingChanges()) {
-      this.removeToolbarButtons();
-      return;
-    }
-
-    const cellId = this._cell.model.id;
-    const footer = this._cellFooterTracker.getFooter(cellId);
-    if (!footer) {
-      return;
-    }
-
-    this.acceptAllButton = new ToolbarButton({
-      icon: checkIcon,
-      label: this.trans.__('Accept'),
-      tooltip: this.trans.__('Accept changes in this cell'),
-      enabled: true,
-      onClick: () => this.acceptAll()
+    applyDiff({
+      editorView,
+      compartment: this._diffCompartment,
+      originalSource: this._originalSource,
+      newSource: this._newSource,
+      isInitialized: this._isInitialized,
+      sharedModel: this._cell.model.sharedModel,
+      onChunkChange: () => this.deactivate(),
+      allowInlineDiffs: this._allowInlineDiffs
     });
 
-    this.rejectAllButton = new ToolbarButton({
-      icon: undoIcon,
-      label: this.trans.__('Reject'),
-      tooltip: this.trans.__('Reject changes in this cell'),
-      enabled: true,
-      onClick: () => this.rejectAll()
+    this._isInitialized = true;
+  }
+
+  private _cleanupEditor(): void {
+    const editorView = this._editor?.editor;
+    if (!editorView) {
+      return;
+    }
+    editorView.dispatch({
+      effects: [this._diffCompartment.reconfigure([])]
     });
-
-    if (this.showActionButtons) {
-      footer.addToolbarItemOnRight('reject-all', this.rejectAllButton);
-      footer.addToolbarItemOnRight('accept-all', this.acceptAllButton);
-    }
-
-    this._cellFooterTracker.showFooter(cellId);
-
-    // Hide the main cell toolbar to avoid overlap
-    this.hideCellToolbar();
   }
-
-  /**
-   * Remove toolbar buttons from the cell footer
-   */
-  protected removeToolbarButtons(): void {
-    if (!this._cellFooterTracker || !this._cell) {
-      return;
-    }
-
-    const cellId = this._cell.model.id;
-    const footer = this._cellFooterTracker.getFooter(cellId);
-    if (!footer) {
-      return;
-    }
-
-    if (this.showActionButtons) {
-      footer.removeToolbarItem('accept-all');
-      footer.removeToolbarItem('reject-all');
-    }
-
-    // Hide the footer if no other items remain
-    this._cellFooterTracker.hideFooter(cellId);
-
-    // Show the main cell toolbar again
-    this.showCellToolbar();
-  }
-
-  private _cell: Cell;
-  private _cellFooterTracker?: ICellFooterTracker;
 }
 
-/**
- * Create a unified diff view for a cell
- */
 export async function createUnifiedCellDiffView(
   options: IUnifiedCellDiffOptions
 ): Promise<UnifiedCellDiffManager> {
