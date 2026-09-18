@@ -67,42 +67,57 @@ export function findCell(
 /**
  * Registry for notebook-level diff managers
  */
-const notebookDiffRegistry = new Map<string, UnifiedCellDiffManager[]>();
+class NotebookDiffRegistry {
+  private registry = new Map<string, UnifiedCellDiffManager[]>();
 
-let registerCellManager = (
-  notebookId: string,
-  manager: UnifiedCellDiffManager
-): void => {
-  if (!notebookDiffRegistry.has(notebookId)) {
-    notebookDiffRegistry.set(notebookId, []);
+  addManager(notebookId: string, manager: UnifiedCellDiffManager): void {
+    if (!this.registry.has(notebookId)) {
+      this.registry.set(notebookId, []);
+    }
+    this.registry.get(notebookId)!.push(manager);
+
+    // Set up automatic cleanup on disposal
+    this.setupDisposalListner(notebookId, manager);
   }
-  notebookDiffRegistry.get(notebookId)!.push(manager);
 
-  originalManager(notebookId, manager);
-};
+  getManagers(notebookId: string): UnifiedCellDiffManager[] {
+    return this.registry.get(notebookId) || [];
+  }
 
-function getNotebookManagers(notebookId: string) {
-  return notebookDiffRegistry.get(notebookId) || [];
-}
+  clearManagers(notebookId: string): void {
+    this.registry.delete(notebookId);
+  }
 
-function clearNotebookManagers(notebookId: string) {
-  notebookDiffRegistry.delete(notebookId);
-}
-
-/**
- * Remove the manager from the notebook diff registry
- */
-function originalManager(notebookId: string, manager: UnifiedCellDiffManager) {
-  const originalDispose = manager.dispose.bind(manager);
-  manager.dispose = () => {
-    originalDispose();
-    const list = notebookDiffRegistry.get(notebookId) ?? [];
-    notebookDiffRegistry.set(
+  /**
+   * Remove the manager from the notebook diff registry
+   */
+  private removeManager(
+    notebookId: string,
+    manager: UnifiedCellDiffManager
+  ): void {
+    const list = this.registry.get(notebookId) ?? [];
+    this.registry.set(
       notebookId,
-      list.filter(m => m !== manager)
+      list?.filter(m => m !== manager)
     );
-  };
+  }
+
+  /**
+   * Set up a listener that Automatically removes managers from the registry
+   */
+  private setupDisposalListner(
+    notebookId: string,
+    manager: UnifiedCellDiffManager
+  ): void {
+    const originalDispose = manager.dispose.bind(manager);
+    manager.dispose = () => {
+      originalDispose();
+      this.removeManager(notebookId, manager);
+    };
+  }
 }
+
+const notebookDiffRegistry = new NotebookDiffRegistry();
 
 /**
  * Split cell diff plugin - shows side-by-side comparison
@@ -333,7 +348,8 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
         });
         cellDiffManagers.set(cell.id, manager);
 
-        registerCellManager(currentNotebook.id, manager);
+        notebookDiffRegistry.addManager(currentNotebook.id, manager);
+        currentNotebook.node.dispatchEvent(new Event('diff-updated'));
       }
     });
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
@@ -350,7 +366,9 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
         acceptButton.textContent = 'Accept All';
         acceptButton.title = trans.__('Accept all changes in this notebook');
         acceptButton.onclick = () => {
-          getNotebookManagers(notebookId).forEach(m => m.acceptAll());
+          notebookDiffRegistry
+            .getManagers(notebookId)
+            .forEach(m => m.acceptAll());
           updateFloatingPanel();
         };
 
@@ -359,7 +377,9 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
         rejectButton.textContent = 'Reject All';
         rejectButton.title = trans.__('Reject all changes in this notebook');
         rejectButton.onclick = () => {
-          getNotebookManagers(notebookId).forEach(m => m.rejectAll());
+          notebookDiffRegistry
+            .getManagers(notebookId)
+            .forEach(m => m.rejectAll());
           updateFloatingPanel();
         };
 
@@ -369,7 +389,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
       }
 
       function updateFloatingPanel(): void {
-        const managers = getNotebookManagers(notebookId);
+        const managers = notebookDiffRegistry.getManagers(notebookId);
         const pendingManagers = managers.filter(m => m.hasPendingChanges());
 
         if (pendingManagers.length < 2) {
@@ -387,7 +407,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
       }
 
       notebookPanel.disposed.connect(() => {
-        clearNotebookManagers(notebookId);
+        notebookDiffRegistry.clearManagers(notebookId);
         if (floatingPanel && floatingPanel.parentElement) {
           floatingPanel.parentElement.removeChild(floatingPanel);
         }
@@ -395,13 +415,6 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
       });
 
       notebookPanel.node.addEventListener('diff-updated', updateFloatingPanel);
-
-      const originalRegister = registerCellManager;
-      registerCellManager = (nid: string, manager: UnifiedCellDiffManager) => {
-        originalRegister(nid, manager);
-        const event = new Event('diff-updated');
-        notebookPanel.node.dispatchEvent(event);
-      };
     });
   }
 };
