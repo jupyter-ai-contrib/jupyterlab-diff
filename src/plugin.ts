@@ -163,14 +163,15 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
       execute: async (args: any = {}) => {
         const {
           cellId,
-          originalSource,
-          newSource,
           showActionButtons = true,
           notebookPath,
           openDiff = true
         } = args;
 
-        if (originalSource === null && newSource === null) {
+        const originalSource = args.originalSource ?? null;
+        const newSource = args.newSource ?? null;
+
+        if (originalSource === null || newSource === null) {
           console.error(
             trans.__('Missing required arguments: originalSource and newSource')
           );
@@ -276,14 +277,15 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
       execute: async (args: any = {}) => {
         const {
           cellId,
-          originalSource,
-          newSource,
           showActionButtons = true,
           allowInlineDiffs = false,
           notebookPath
         } = args;
 
-        if (originalSource === null && newSource === null) {
+        const originalSource = args.originalSource ?? null;
+        const newSource = args.newSource ?? null;
+
+        if (originalSource === null || newSource === null) {
           console.error(
             trans.__('Missing required arguments: originalSource and newSource')
           );
@@ -465,13 +467,14 @@ const unifiedFileDiffPlugin: JupyterFrontEndPlugin<void> = {
       execute: async (args: any = {}) => {
         const {
           filePath,
-          originalSource,
-          newSource,
           showActionButtons = true,
           allowInlineDiffs = false
         } = args;
 
-        if (originalSource === null && newSource === null) {
+        const originalSource = args.originalSource ?? null;
+        const newSource = args.newSource ?? null;
+
+        if (originalSource === null || newSource === null) {
           console.error(
             trans.__('Missing required arguments: originalSource and newSource')
           );
