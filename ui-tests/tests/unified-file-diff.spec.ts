@@ -95,4 +95,36 @@ test.describe('Unified File Diff Extension', () => {
     const fileContent = await getFileContent(page);
     expect(fileContent).toBe(originalSource);
   });
+
+  test('should handle an inserted file', async ({ page }) => {
+    const originalSource = '';
+    const newSource = `def add(a, b):
+  return a + b`;
+
+    await setupFileWithUnifiedDiff(page, originalSource, newSource);
+
+    const acceptButton = page.getByText('Accept All');
+    await expect(acceptButton).toBeVisible();
+
+    await acceptButton.click();
+
+    const acceptedFileContent = await getFileContent(page);
+    expect(acceptedFileContent).toBe(newSource);
+  });
+
+  test('should handle a deleted file', async ({ page }) => {
+    const originalSource = `def add(a, b):
+  return a + b`;
+    const newSource = '';
+
+    await setupFileWithUnifiedDiff(page, originalSource, newSource);
+
+    const acceptButton = page.getByText('Accept All');
+    await expect(acceptButton).toBeVisible();
+
+    await acceptButton.click();
+
+    const acceptedFileContent = await getFileContent(page);
+    expect(acceptedFileContent).toBe('');
+  });
 });

@@ -62,7 +62,7 @@ export abstract class BaseDiffWidget extends Widget {
     this._cell = options.cell;
     this._cellFooterTracker = options.cellFooterTracker;
     this._originalSource = options.originalSource;
-    this._newSource = options.newSource || options.cell.sharedModel.getSource();
+    this._newSource = options.newSource;
     this._trans = options.trans;
     this._showActionButtons = options.showActionButtons ?? true;
     this._openDiff = options.openDiff ?? true;
