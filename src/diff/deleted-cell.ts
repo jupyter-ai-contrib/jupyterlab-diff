@@ -67,6 +67,7 @@ export class DeletedCellDiffManager extends BaseCellDiffManager {
   protected deactivate(): void {
     this._teardownViewportObserver();
     this.removeToolbarButtons(this._cellFooter);
+    this._notifyDiffUpdated();
     if (!this._ghostPanel.isDisposed) {
       if (this._ghostPanel.isAttached) {
         Widget.detach(this._ghostPanel);
@@ -78,7 +79,6 @@ export class DeletedCellDiffManager extends BaseCellDiffManager {
       BaseCellDiffManager._activeDiffCount - 1
     );
     this._teardownToolbarObserver();
-    this._notifyDiffUpdated();
     this.dispose();
   }
 

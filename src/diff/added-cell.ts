@@ -28,6 +28,7 @@ export class AddedCellDiffManager extends BaseCellDiffManager {
 
   rejectAll(): void {
     this._isResolved = true;
+    this._notifyDiffUpdated();
     this._removeCell();
     this.deactivate();
   }
