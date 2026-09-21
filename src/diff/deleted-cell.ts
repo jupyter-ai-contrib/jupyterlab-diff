@@ -192,6 +192,7 @@ export class DeletedCellDiffManager extends BaseCellDiffManager {
       default: {
         const model = new CodeCellModel({});
         model.sharedModel.setSource(options.cellSource);
+        model.mimeType = nb.codeMimetype;
         return new CodeCell({
           model,
           rendermime: nb.rendermime,
