@@ -110,7 +110,10 @@ export abstract class BaseCellDiffManager {
       return;
     }
 
-    const cellId = this._cell.model.id;
+    const cellId = this._cell.model?.id;
+    if (!cellId) {
+      return;
+    }
     const footer = this._cellFooterTracker.getFooter(cellId);
     if (!footer) {
       return;
