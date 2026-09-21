@@ -13,14 +13,15 @@ import { IDiffWidgetOptions } from './widget';
 import { createCodeMirrorSplitDiffWidget } from './diff/cell';
 import { createUnifiedCellDiffView } from './diff/unified-cell';
 import { AddedCellDiffManager } from './diff/added-cell';
-import { BaseCellDiffManager } from './diff/base-cell-diff';
+import { DeletedCellDiffManager } from './diff/deleted-cell';
+import { ICellDiffManager } from './diff/base-cell-diff';
 import {
   createUnifiedFileDiff,
   UnifiedFileDiffManager
 } from './diff/unified-file';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 
-type DiffAction = 'edit' | 'add';
+type DiffAction = 'edit' | 'add' | 'delete';
 
 /**
  * The translation namespace for the plugin.
@@ -69,11 +70,11 @@ export function findCell(
 /**
  * Registry for notebook-level diff managers
  */
-const notebookDiffRegistry = new Map<string, BaseCellDiffManager[]>();
+const notebookDiffRegistry = new Map<string, ICellDiffManager[]>();
 
 let registerCellManager = (
   notebookId: string,
-  manager: BaseCellDiffManager
+  manager: ICellDiffManager
 ): void => {
   if (!notebookDiffRegistry.has(notebookId)) {
     notebookDiffRegistry.set(notebookId, []);
@@ -94,7 +95,7 @@ function clearNotebookManagers(notebookId: string) {
 /**
  * Remove the manager from the notebook diff registry
  */
-function originalManager(notebookId: string, manager: BaseCellDiffManager) {
+function originalManager(notebookId: string, manager: ICellDiffManager) {
   const originalDispose = manager.dispose.bind(manager);
   manager.dispose = () => {
     originalDispose();
@@ -136,7 +137,9 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
             },
             originalSource: {
               type: 'string',
-              description: trans.__('Original source code to compare against')
+              description: trans.__(
+                "Original source code to compare against, or source of the deleted cell when action='delete'"
+              )
             },
             newSource: {
               type: 'string',
@@ -160,9 +163,22 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
             },
             action: {
               type: 'string',
-              enum: ['edit', 'add'],
+              enum: ['edit', 'add', 'delete'],
               description: trans.__(
-                "Diff action: 'edit' for content changes, 'add' for a newly added cell"
+                "Diff action: 'edit' for content changes, 'add' for a newly added cell, 'delete' for a deleted cell"
+              )
+            },
+            cellType: {
+              type: 'string',
+              enum: ['code', 'markdown', 'raw'],
+              description: trans.__(
+                "Type of the deleted cell (required when action='delete')"
+              )
+            },
+            insertIndex: {
+              type: 'number',
+              description: trans.__(
+                "Index at which the deleted cell should be re-inserted (required when action='delete')"
               )
             }
           },
@@ -175,7 +191,9 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           showActionButtons = true,
           notebookPath,
           openDiff = true,
-          action = 'edit' as DiffAction
+          action = 'edit' as DiffAction,
+          cellType = 'code',
+          insertIndex = 0
         } = args;
 
         const originalSource = args.originalSource ?? null;
@@ -191,8 +209,25 @@ const splitCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
+        if (action === 'delete' && originalSource === null) {
+          console.error(trans.__('Missing required argument: originalSource'));
+          return;
+        }
+
         const currentNotebook = findNotebook(notebookTracker, notebookPath);
         if (!currentNotebook) {
+          return;
+        }
+
+        if (action === 'delete') {
+          new DeletedCellDiffManager({
+            notebookPanel: currentNotebook,
+            cellSource: originalSource,
+            cellType,
+            insertIndex,
+            showActionButtons,
+            trans
+          });
           return;
         }
 
@@ -265,7 +300,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
     const trans = (translator ?? nullTranslator).load(TRANSLATION_NAMESPACE);
 
     // Track active unified diff managers to avoid creating duplicates
-    const cellDiffManagers = new Map<string, BaseCellDiffManager>();
+    const cellDiffManagers = new Map<string, ICellDiffManager>();
 
     commands.addCommand('jupyterlab-diff:unified-cell-diff', {
       label: trans.__('Show Cell Diff (Unified)'),
@@ -279,7 +314,9 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
             },
             originalSource: {
               type: 'string',
-              description: trans.__('Original source code to compare against')
+              description: trans.__(
+                "Original source code to compare against, or source of the deleted cell when action='delete'"
+              )
             },
             newSource: {
               type: 'string',
@@ -303,9 +340,22 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
             },
             action: {
               type: 'string',
-              enum: ['edit', 'add'],
+              enum: ['edit', 'add', 'delete'],
               description: trans.__(
-                "Diff action: 'edit' for content changes, 'add' for a newly added cell"
+                "Diff action: 'edit' for content changes, 'add' for a newly added cell, 'delete' for a deleted cell"
+              )
+            },
+            cellType: {
+              type: 'string',
+              enum: ['code', 'markdown', 'raw'],
+              description: trans.__(
+                "Type of the deleted cell (required when action='delete')"
+              )
+            },
+            insertIndex: {
+              type: 'number',
+              description: trans.__(
+                "Index at which the deleted cell should be re-inserted (required when action='delete')"
               )
             }
           },
@@ -318,7 +368,9 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           showActionButtons = true,
           allowInlineDiffs = false,
           notebookPath,
-          action = 'edit' as DiffAction
+          action = 'edit' as DiffAction,
+          cellType = 'code',
+          insertIndex = 0
         } = args;
 
         const originalSource = args.originalSource ?? null;
@@ -334,8 +386,32 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
+        if (action === 'delete' && originalSource === null) {
+          console.error(trans.__('Missing required argument: originalSource'));
+          return;
+        }
+
         const currentNotebook = findNotebook(notebookTracker, notebookPath);
         if (!currentNotebook) {
+          return;
+        }
+
+        if (action === 'delete') {
+          const managerKey = `deleted-${insertIndex}-${currentNotebook.id}`;
+          const existingManager = cellDiffManagers.get(managerKey);
+          if (existingManager && !existingManager.isDisposed) {
+            existingManager.dispose();
+          }
+          const manager = new DeletedCellDiffManager({
+            notebookPanel: currentNotebook,
+            cellSource: originalSource,
+            cellType,
+            insertIndex,
+            showActionButtons,
+            trans
+          });
+          cellDiffManagers.set(managerKey, manager);
+          registerCellManager(currentNotebook.id, manager);
           return;
         }
 
@@ -365,7 +441,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
         }
 
         // Create a new manager
-        let manager: BaseCellDiffManager;
+        let manager: ICellDiffManager;
 
         if (action === 'add') {
           manager = new AddedCellDiffManager({
@@ -458,7 +534,7 @@ const unifiedCellDiffPlugin: JupyterFrontEndPlugin<void> = {
       notebookPanel.node.addEventListener('diff-updated', updateFloatingPanel);
 
       const originalRegister = registerCellManager;
-      registerCellManager = (nid: string, manager: BaseCellDiffManager) => {
+      registerCellManager = (nid: string, manager: ICellDiffManager) => {
         originalRegister(nid, manager);
         const event = new Event('diff-updated');
         notebookPanel.node.dispatchEvent(event);
