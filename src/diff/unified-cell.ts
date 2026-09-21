@@ -70,7 +70,6 @@ export class UnifiedCellDiffManager extends BaseCellDiffManager {
     }
 
     this.removeToolbarButtons();
-    this._notifyDiffUpdated();
     this.dispose();
   }
 

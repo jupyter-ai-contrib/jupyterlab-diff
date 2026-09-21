@@ -30,6 +30,7 @@ export class AddedCellDiffManager extends BaseCellDiffManager {
 
   rejectAll(): void {
     this._isResolved = true;
+    this._notifyDiffUpdated();
     this._removeCell();
     this.deactivate();
   }
@@ -55,7 +56,6 @@ export class AddedCellDiffManager extends BaseCellDiffManager {
   protected deactivate(): void {
     this._cell.node.classList.remove(ADDED_CELL_DIFF_CLASS);
     this.removeToolbarButtons();
-    this._notifyDiffUpdated();
     this.dispose();
   }
 }

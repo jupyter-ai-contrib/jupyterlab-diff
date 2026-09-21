@@ -42,6 +42,7 @@ export class DeletedCellDiffManager extends BaseCellDiffManager {
       return;
     }
     this._isResolved = true;
+    this._notifyDiffUpdated();
     this.deactivate();
   }
 
@@ -50,6 +51,7 @@ export class DeletedCellDiffManager extends BaseCellDiffManager {
       return;
     }
     this._isResolved = true;
+    this._notifyDiffUpdated();
     this._restoreCell();
     this.deactivate();
   }
@@ -72,7 +74,6 @@ export class DeletedCellDiffManager extends BaseCellDiffManager {
       }
       this._ghostPanel.dispose();
     }
-    this._notifyDiffUpdated();
     this.dispose();
   }
 
