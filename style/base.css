@@ -78,6 +78,11 @@
   border-color: var(--jp-border-color1);
 }
 
+/* Hide cell toolbar during unified diff */
+.jp-unified-diff-cell .jp-cell-toolbar {
+  display: none;
+}
+
 /* Floating unified-cell-diff control panel */
 .jp-unified-diff-floating-panel {
   position: absolute;
