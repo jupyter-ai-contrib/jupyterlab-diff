@@ -50,18 +50,20 @@ export function findCell(
   const notebookWidget = notebook.content;
   const model = notebookWidget.model;
 
-  let cell = notebookWidget.activeCell?.model;
-  if (cellId && model) {
+  if (cellId) {
+    if (!model) {
+      return null;
+    }
     for (let i = 0; i < model.cells.length; i++) {
       const c = model.cells.get(i);
       if (c.id === cellId) {
-        cell = c;
-        break;
+        return c;
       }
     }
+    return null;
   }
 
-  return cell ?? null;
+  return notebookWidget.activeCell?.model ?? null;
 }
 
 /**
