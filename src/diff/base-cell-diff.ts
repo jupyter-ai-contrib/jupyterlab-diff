@@ -2,6 +2,15 @@ import { Cell } from '@jupyterlab/cells';
 import { TranslationBundle } from '@jupyterlab/translation';
 import { checkIcon, ToolbarButton, undoIcon } from '@jupyterlab/ui-components';
 import { ICellFooterTracker } from 'jupyterlab-cell-input-footer';
+import { CellFooterWidget } from 'jupyterlab-cell-input-footer/lib/widget';
+
+export interface ICellDiffManager {
+  isDisposed: boolean;
+  hasPendingChanges(): boolean;
+  acceptAll(): void;
+  rejectAll(): void;
+  dispose(): void;
+}
 
 export interface IBaseCellDiffOptions {
   cell: Cell;
@@ -10,7 +19,7 @@ export interface IBaseCellDiffOptions {
   showActionButtons?: boolean;
 }
 
-export abstract class BaseCellDiffManager {
+export abstract class BaseCellDiffManager implements ICellDiffManager {
   protected static _activeDiffCount = 0;
 
   constructor(options: IBaseCellDiffOptions) {
@@ -64,19 +73,15 @@ export abstract class BaseCellDiffManager {
     }
   }
 
-  protected addToolbarButtons(): void {
-    if (!this._cellFooterTracker || !this._cell) {
+  protected addToolbarButtons(footer?: CellFooterWidget): void {
+    const resolvedFooter =
+      footer ?? this._cellFooterTracker?.getFooter(this._cell?.model?.id);
+    if (!resolvedFooter) {
       return;
     }
 
     if (!this.hasPendingChanges()) {
-      this.removeToolbarButtons();
-      return;
-    }
-
-    const cellId = this._cell.model.id;
-    const footer = this._cellFooterTracker.getFooter(cellId);
-    if (!footer) {
+      this.removeToolbarButtons(footer);
       return;
     }
 
@@ -97,34 +102,35 @@ export abstract class BaseCellDiffManager {
     });
 
     if (this.showActionButtons) {
-      footer.addToolbarItemOnRight('reject-all', this.rejectAllButton);
-      footer.addToolbarItemOnRight('accept-all', this.acceptAllButton);
+      resolvedFooter.addToolbarItemOnRight('reject-all', this.rejectAllButton);
+      resolvedFooter.addToolbarItemOnRight('accept-all', this.acceptAllButton);
     }
 
-    this._cellFooterTracker.showFooter(cellId);
+    if (footer) {
+      footer.show();
+    } else {
+      this._cellFooterTracker?.showFooter(this._cell.model?.id);
+    }
     this.hideCellToolbar();
   }
 
-  protected removeToolbarButtons(): void {
-    if (!this._cellFooterTracker || !this._cell) {
-      return;
-    }
-
-    const cellId = this._cell.model?.id;
-    if (!cellId) {
-      return;
-    }
-    const footer = this._cellFooterTracker.getFooter(cellId);
-    if (!footer) {
+  protected removeToolbarButtons(footer?: CellFooterWidget): void {
+    const cellId = this._cell?.model?.id;
+    const resolvedFooter = footer ?? this._cellFooterTracker?.getFooter(cellId);
+    if (!resolvedFooter || resolvedFooter.isDisposed) {
       return;
     }
 
     if (this.showActionButtons) {
-      footer.removeToolbarItem('accept-all');
-      footer.removeToolbarItem('reject-all');
+      resolvedFooter.removeToolbarItem('accept-all');
+      resolvedFooter.removeToolbarItem('reject-all');
     }
 
-    this._cellFooterTracker.hideFooter(cellId);
+    if (footer) {
+      footer.hide();
+    } else {
+      this._cellFooterTracker?.hideFooter(cellId);
+    }
     this.showCellToolbar();
   }
 

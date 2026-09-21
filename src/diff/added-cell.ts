@@ -9,10 +9,12 @@ export class AddedCellDiffManager extends BaseCellDiffManager {
   constructor(options: IAddedCellDiffOptions) {
     super(options);
     this._notebookPanel = options.notebookPanel;
+    this._cellId = options.cell.model.id;
     this.activate();
   }
 
   private _notebookPanel: NotebookPanel;
+  private _cellId: string;
   private _isResolved = false;
 
   hasPendingChanges(): boolean {
@@ -36,7 +38,7 @@ export class AddedCellDiffManager extends BaseCellDiffManager {
       return;
     }
     for (let i = 0; i < model.cells.length; i++) {
-      if (model.cells.get(i).id === this._cell.model.id) {
+      if (model.cells.get(i).id === this._cellId) {
         model.sharedModel.deleteCell(i);
         break;
       }
