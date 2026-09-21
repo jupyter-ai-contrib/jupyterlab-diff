@@ -8,6 +8,11 @@
 
 A JupyterLab extension for showing cell diffs with multiple diffing strategies.
 
+It offers two ways to drive a diff: **imperative commands** (you pass the
+original/new source directly), and a **metadata-driven observer** (a diff is
+rendered automatically from a durable marker written into a cell's metadata, so
+it survives reload/disconnect). See [Metadata-driven cell diffs](#metadata-driven-cell-diffs).
+
 ## Requirements
 
 - JupyterLab >= 4.0.0
@@ -142,6 +147,86 @@ window.jupyterapp.commands.execute('jupyterlab-diff:split-cell-diff', {
 | `newSource`         | `string`  | Yes      | New source code to compare with                                       |
 | `showActionButtons` | `boolean` | No       | Whether to show action buttons for chunk acceptance (default: `true`) |
 | `allowInlineDiffs`  | `boolean` | No       | Whether to show inline diffs in the diff widget (default: `false`)    |
+
+## Metadata-driven cell diffs
+
+In addition to the imperative commands above, the extension ships an opt-in
+plugin (`jupyterlab-diff:metadata-diff`) that renders a per-cell diff
+**automatically** from a marker stored in a cell's metadata. Because the diff is
+a projection of durable metadata rather than transient UI state, it survives
+notebook close/reopen, refresh, and disconnect, and is re-derived on load.
+
+This is a generic mechanism: any producer — a JupyterLab extension, a
+server-side component, or a script — can write the marker to request a diff.
+It is not tied to any particular tool or workflow.
+
+### Enabling
+
+Off by default. Enable via Settings (or `overrides.json`):
+
+```json
+{
+  "jupyterlab-diff:metadata-diff": {
+    "enabled": true,
+    "markerKey": "jupyterlab-diff"
+  }
+}
+```
+
+- `enabled` — turn the observer on.
+- `markerKey` — the cell-metadata key the observer watches (default
+  `"jupyterlab-diff"`).
+
+The whole-cell Accept/Reject buttons render in the cell's input footer, provided
+by [`jupyterlab-cell-input-footer`](https://www.npmjs.com/package/jupyterlab-cell-input-footer).
+
+### Marker schema
+
+A producer applies a change to a cell **in place** and writes a marker under the
+`markerKey`. The cell already holds the _new_ content; the marker carries what
+the UI can't otherwise recover (the original) and how to resolve it:
+
+```jsonc
+// cell.metadata[markerKey]
+{
+  "op": "edit" | "add" | "delete", // required; any other value is ignored
+  "original_source": "def add(a):\n    return a\n" // the cell's source BEFORE the change ("" for add)
+}
+```
+
+Producers may include extra fields for their own bookkeeping; the observer
+ignores anything it doesn't recognize.
+
+How the diff is derived and resolved per op:
+
+| `op`     | original side     | new side         | Accept          | Reject                     |
+| -------- | ----------------- | ---------------- | --------------- | -------------------------- |
+| `edit`   | `original_source` | live cell source | keep new        | restore `original_source`  |
+| `add`    | `""`              | live cell source | keep the cell   | remove the cell            |
+| `delete` | `original_source` | `""`             | remove the cell | keep the cell (restore it) |
+
+Notes:
+
+- `delete` is a **soft delete**: the cell stays in place carrying the marker
+  until the user resolves it.
+- On repeated edits, a producer should preserve the _first_ `original_source` so
+  the diff always reflects the change versus the true pre-change state.
+- Resolution is **whole-cell** (Accept/Reject in the footer), applied through
+  the cell's shared model so a single edit-mode undo restores the content and
+  the marker together. Resolving clears the marker.
+
+Per-op examples:
+
+```jsonc
+// edit — cell now holds the new source; diff shows original -> current
+"jupyterlab-diff": { "op": "edit", "original_source": "x = 1\n" }
+
+// add — brand-new cell; whole cell shown as added
+"jupyterlab-diff": { "op": "add", "original_source": "" }
+
+// delete — cell still present, shown as fully removed; accept confirms deletion
+"jupyterlab-diff": { "op": "delete", "original_source": "print('bye')\n" }
+```
 
 ## Architecture
 
