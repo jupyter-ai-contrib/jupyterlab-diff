@@ -114,4 +114,44 @@ test.describe('Cell Diff Extension', () => {
 
     await expect(diffWidget).toBeVisible();
   });
+
+  test('should handle an inserted cell', async ({ page }) => {
+    const originalSource = '';
+    const newSource = `def add(a, b):
+    return a + b`;
+
+    const diffWidget = await setupCellWithDiff(page, originalSource, newSource);
+
+    await expect(diffWidget).toBeVisible();
+
+    const acceptButton = page.getByRole('button', {
+      name: 'Accept Changes'
+    });
+
+    await expect(acceptButton).toBeVisible();
+    await acceptButton.click();
+
+    const cellContent = await getCellContent(page);
+    expect(cellContent).toBe(newSource);
+  });
+
+  test('should handle a deleted cell', async ({ page }) => {
+    const originalSource = `def add(a, b):
+    return a + b`;
+    const newSource = '';
+
+    const diffWidget = await setupCellWithDiff(page, originalSource, newSource);
+
+    await expect(diffWidget).toBeVisible();
+
+    const acceptButton = page.getByRole('button', {
+      name: 'Accept Changes'
+    });
+
+    await expect(acceptButton).toBeVisible();
+    await acceptButton.click();
+
+    const cellContent = await getCellContent(page);
+    expect(cellContent).toBe('');
+  });
 });

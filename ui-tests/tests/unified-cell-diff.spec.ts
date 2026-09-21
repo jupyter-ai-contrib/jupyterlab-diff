@@ -48,7 +48,10 @@ async function setupCellWithUnifiedDiff(
  * TODO: use getCellTextInput from galata?
  * See https://github.com/jupyterlab/jupyterlab/blob/1abbdf39fb204e47941e8d8021d85366a0ecece9/galata/src/helpers/notebook.ts#L677-L707
  */
-async function getCellContent(page: IJupyterLabPageFixture): Promise<string> {
+async function getCellContent(
+  page: IJupyterLabPageFixture,
+  cellIndex?: number
+): Promise<string> {
   return await page.evaluate(() => {
     const nbPanel = window.jupyterapp.shell.currentWidget as NotebookPanel;
     return nbPanel.content.widgets[0].model.sharedModel.getSource();
@@ -167,5 +170,54 @@ test.describe('Unified Cell Diff Extension', () => {
 
     expect(cellContent).toContain('a = 1');
     expect(cellContent).toContain('b = 2');
+  });
+
+  test('should handle an inserted cell', async ({ page }) => {
+    const originalSource = '';
+    const newSource = `def add(a, b):
+    return a + b`;
+
+    await setupCellWithUnifiedDiff(page, originalSource, newSource);
+
+    const acceptButton = page.getByText('Accept All');
+    await expect(acceptButton).toBeVisible();
+    await acceptButton.click();
+
+    const acceptedCellContent = await getCellContent(page, 0);
+    expect(acceptedCellContent).toBe(newSource);
+  });
+
+  test('should handle a deleted cell', async ({ page }) => {
+    const originalSource = `def add(a, b):
+    return a + b`;
+    const newSource = '';
+
+    await setupCellWithUnifiedDiff(page, originalSource, newSource);
+
+    const acceptButton = page.getByText('Accept All');
+    await expect(acceptButton).toBeVisible();
+    await acceptButton.click();
+
+    const acceptedCellContent = await getCellContent(page, 0);
+    expect(acceptedCellContent).toBe('');
+  });
+
+  test('should reject missing diff sources', async ({ page }) => {
+    await page.notebook.createNew();
+
+    const result = await page.evaluate(async () => {
+      const command = 'jupyterlab-diff:unified-cell-diff';
+
+      return await window.jupyterapp.commands.execute(command, {
+        originalSource: undefined,
+        newSource: 'print("new")',
+        showActionButtons: true
+      });
+    });
+
+    expect(result).toBeUndefined();
+
+    const diffButtons = page.getByText('Accept All');
+    await expect(diffButtons).not.toBeVisible();
   });
 });
