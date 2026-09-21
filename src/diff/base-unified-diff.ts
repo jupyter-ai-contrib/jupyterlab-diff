@@ -101,16 +101,6 @@ export abstract class BaseUnifiedDiffManager {
   }
 
   /**
-   * Hook to hide the cell toolbar — overridden in subclasses
-   */
-  protected hideCellToolbar(): void {}
-
-  /**
-   * Hook to show the cell toolbar — overridden in subclasses
-   */
-  protected showCellToolbar(): void {}
-
-  /**
    * Hook to update the diff view — overridden in subclasses
    */
   protected onDiffUpdated?: () => void;
@@ -121,7 +111,6 @@ export abstract class BaseUnifiedDiffManager {
   protected activate(): void {
     this._applyDiff();
     this.addToolbarButtons();
-    this.hideCellToolbar();
   }
 
   /**
@@ -130,7 +119,6 @@ export abstract class BaseUnifiedDiffManager {
   protected deactivate(): void {
     this.removeToolbarButtons();
     this._cleanupEditor();
-    this.showCellToolbar();
   }
 
   /**
