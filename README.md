@@ -108,7 +108,7 @@ const { outcome, source } = await diff.result;
 // outcome: 'accepted', 'rejected', 'mixed' or 'disposed'
 ```
 
-`dispose()` removes the diff and leaves the source as it is; call it before the editor is disposed, and before showing another diff in the same editor.
+When the editor already holds `newSource`, the manager does not set it again. `dispose()` removes the diff and leaves the source as it is; call it before the editor is disposed, and before showing another diff in the same editor.
 
 An extension that uses the manager lists `jupyterlab-diff` in its `dependencies`. The styles of the diff come from the installed `jupyterlab_diff` Python package.
 

@@ -49,7 +49,8 @@ export interface IUnifiedEditorDiffOptions {
   originalSource: string;
 
   /**
-   * The source after the change. The editor's source is set to it.
+   * The source after the change. The editor's source is set to it, unless it
+   * already holds it.
    */
   newSource: string;
 

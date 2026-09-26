@@ -147,6 +147,11 @@ export function applyDiff(options: IApplyDiffOptions): void {
     effects.push(compartment.reconfigure(bundledExtensions));
   }
 
-  sharedModel.setSource(newSource);
+  // The caller may have applied the change already. Setting the same source
+  // again would replace the whole shared text: a new undo step for the user,
+  // and a conflicting edit for other collaborators.
+  if (sharedModel.getSource() !== newSource) {
+    sharedModel.setSource(newSource);
+  }
   editorView.dispatch({ effects });
 }
