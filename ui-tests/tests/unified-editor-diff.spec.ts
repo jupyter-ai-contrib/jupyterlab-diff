@@ -142,6 +142,47 @@ test.describe('Unified Editor Diff API', () => {
     await expect(cell.locator('.jp-merge-accept-button')).toHaveCount(0);
   });
 
+  test('should not set the source again when the editor holds it', async ({
+    page
+  }) => {
+    const originalSource = 'x = 1';
+    const newSource = 'x = 2';
+
+    // The change is applied first, and the diff is shown on request.
+    await openNotebook(page, newSource);
+    const changes = await page.evaluate(
+      ({ originalSource, newSource }) => {
+        const { UnifiedEditorDiffManager } = (window as any).jupyterlabDiff;
+        const panel = window.jupyterapp.shell.currentWidget as NotebookPanel;
+        const cell = panel.content.widgets[0];
+        let count = 0;
+        const onChange = () => {
+          count++;
+        };
+        cell.model.sharedModel.changed.connect(onChange);
+        (window as any).editorDiff = new UnifiedEditorDiffManager({
+          editor: cell.editor,
+          originalSource,
+          newSource
+        });
+        cell.model.sharedModel.changed.disconnect(onChange);
+        return count;
+      },
+      { originalSource, newSource }
+    );
+    expect(changes).toBe(0);
+
+    const cell = page.locator('.jp-Cell').first();
+    await expect(cell.locator('.jp-merge-reject-button')).toHaveCount(1);
+
+    await page.evaluate(() => (window as any).editorDiff.rejectAll());
+
+    expect(await getResult(page)).toEqual({
+      outcome: 'rejected',
+      source: originalSource
+    });
+  });
+
   test('should keep the source when disposed', async ({ page }) => {
     const originalSource = 'x = 1';
     const newSource = 'x = 2';
