@@ -202,6 +202,35 @@ test.describe('Unified Cell Diff Extension', () => {
     expect(acceptedCellContent).toBe('');
   });
 
+  test('should add diff class to cell while diff is active', async ({
+    page
+  }) => {
+    await setupCellWithUnifiedDiff(page, 'x = 1', 'x = 2');
+
+    const firstCell = page.locator('.jp-Cell').first();
+    await expect(firstCell).toHaveClass(/jp-unified-diff-cell/);
+  });
+
+  test('should remove diff class from cell after resolving diff', async ({
+    page
+  }) => {
+    await setupCellWithUnifiedDiff(page, 'x = 1', 'x = 2');
+
+    const firstCell = page.locator('.jp-Cell').first();
+    await page.getByText('Accept All').first().click();
+
+    await expect(firstCell).not.toHaveClass(/jp-unified-diff-cell/);
+  });
+
+  test('should keep the footer toolbar visible while diff is active', async ({
+    page
+  }) => {
+    await setupCellWithUnifiedDiff(page, 'x = 1', 'x = 2');
+
+    const firstCell = page.locator('.jp-Cell').first();
+    await expect(firstCell.locator('.jp-cellfooter-toolbar')).toBeVisible();
+  });
+
   test('should reject missing diff sources', async ({ page }) => {
     await page.notebook.createNew();
 
