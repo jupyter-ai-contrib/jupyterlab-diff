@@ -1,0 +1,21 @@
+{
+  "jupyter.lab.setting-icon-label": "Metadata Cell Diffs",
+  "title": "Metadata Cell Diffs",
+  "description": "Settings for rendering live per-cell diffs from durable markers written into cell metadata.",
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled",
+      "description": "Whether to observe cell metadata markers and render per-cell diffs. Off by default.",
+      "default": false
+    },
+    "markerKey": {
+      "type": "string",
+      "title": "Marker key",
+      "description": "The cell metadata key under which pending diff markers are written.",
+      "default": "jupyterlab-diff"
+    }
+  },
+  "additionalProperties": false
+}

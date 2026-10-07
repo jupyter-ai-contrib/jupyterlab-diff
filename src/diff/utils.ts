@@ -5,7 +5,7 @@ import { checkIcon, undoIcon } from '@jupyterlab/ui-components';
 import { ISharedText } from '@jupyter/ydoc';
 
 /**
- * Render a custom merge button with JupyterLab icons
+ * Render a custom merge control button with JupyterLab icons.
  */
 export function renderMergeButton(
   type: 'accept' | 'reject',
@@ -38,15 +38,19 @@ export function createMergeExtension(
   originalSource: string,
   options?: Record<string, any>
 ): Extension {
+  // Per-chunk inline accept/reject controls are shown by default. A consumer
+  // that resolves whole-cell (e.g. the metadata-diff observer) can turn them
+  // off with `showMergeControls: false`: a per-chunk merge resolution happens
+  // inside the merge view and isn't captured on any undo manager, so whole-cell
+  // resolution is the cleanly-undoable path there.
+  const showMergeControls = options?.showMergeControls !== false;
   return unifiedMergeView({
     original: originalSource,
     allowInlineDiffs: options?.allowInlineDiffs ?? false,
-    mergeControls: (
-      type: 'accept' | 'reject',
-      action: (e: MouseEvent) => void
-    ) => {
-      return renderMergeButton(type, action);
-    }
+    mergeControls: showMergeControls
+      ? (type: 'accept' | 'reject', action: (e: MouseEvent) => void) =>
+          renderMergeButton(type, action)
+      : false
   });
 }
 
@@ -101,6 +105,11 @@ export interface IApplyDiffOptions {
    * Whether to allow inline diffs
    */
   allowInlineDiffs?: boolean;
+
+  /**
+   * Whether to show the per-chunk merge accept/reject controls (default true).
+   */
+  showMergeControls?: boolean;
 }
 
 /**
@@ -115,11 +124,13 @@ export function applyDiff(options: IApplyDiffOptions): void {
     isInitialized,
     sharedModel,
     onChunkChange,
-    allowInlineDiffs = false
+    allowInlineDiffs = false,
+    showMergeControls = true
   } = options;
 
   const mergeExtension = createMergeExtension(originalSource, {
-    allowInlineDiffs
+    allowInlineDiffs,
+    showMergeControls
   });
 
   // Create an update listener to track chunk resolution
@@ -131,8 +142,8 @@ export function applyDiff(options: IApplyDiffOptions): void {
     }
   });
 
-  // Bundle both the merge extension and update listener in the compartment
-  // This ensures they're managed together and properly cleaned up
+  // Bundle the merge extension and the update listener in the compartment so
+  // they are managed together and cleaned up when the diff is deactivated.
   const bundledExtensions = [mergeExtension, updateListener];
   const effects: StateEffect<any>[] = [];
 
@@ -147,6 +158,16 @@ export function applyDiff(options: IApplyDiffOptions): void {
     effects.push(compartment.reconfigure(bundledExtensions));
   }
 
-  sharedModel.setSource(newSource);
+  // Only rewrite the source when it actually differs from what the cell already
+  // holds. YCell.setSource does an unconditional full clear+insert of the YText
+  // (delete(0, len) + insert(0, value)); for the metadata-diff observer the cell
+  // already contains newSource, so an unconditional call would be a redundant
+  // whole-text rewrite issued from this (client) YJS peer. That rewrite can race
+  // a concurrent remote splice to the same cell and CRDT-merge into scrambled
+  // text. Skipping the no-op write avoids the corruption; the merge view still
+  // renders because it diffs the editor's current content against originalSource.
+  if (sharedModel.getSource() !== newSource) {
+    sharedModel.setSource(newSource);
+  }
   editorView.dispatch({ effects });
 }
