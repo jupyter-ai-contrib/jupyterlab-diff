@@ -123,12 +123,28 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
   }
 
   /**
+   * Find the cell's own toolbar, excluding the diff footer's toolbar.
+   *
+   * JupyterLab renders both the cell toolbar and the footer's toolbar as
+   * `<jp-toolbar>` elements, so a bare `querySelector('jp-toolbar')` can match
+   * the footer's own toolbar and hide the Accept/Reject buttons in it. Scope to
+   * toolbars that are NOT inside a `.jp-cellfooter`.
+   */
+  private _cellToolbar(): HTMLElement | null {
+    const toolbars = this._cell.node.querySelectorAll('jp-toolbar');
+    for (const tb of Array.from(toolbars)) {
+      if (!tb.closest('.jp-cellfooter')) {
+        return tb as HTMLElement;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Hide the cell's toolbar while the diff is active
    */
   protected hideCellToolbar(): void {
-    const toolbar = this._cell.node.querySelector(
-      'jp-toolbar'
-    ) as HTMLElement | null;
+    const toolbar = this._cellToolbar();
     if (toolbar) {
       toolbar.style.display = 'none';
     }
@@ -141,9 +157,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     if (UnifiedCellDiffManager._activeDiffCount > 0) {
       return;
     }
-    const toolbar = this._cell.node.querySelector(
-      'jp-toolbar'
-    ) as HTMLElement | null;
+    const toolbar = this._cellToolbar();
     if (toolbar) {
       toolbar.style.display = '';
     }
