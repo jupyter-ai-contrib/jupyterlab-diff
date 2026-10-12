@@ -78,6 +78,77 @@
   border-color: var(--jp-border-color1);
 }
 
+/* Root container: allow layout to flex & scroll correctly */
+.jp-SplitFileDiffView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+  background-color: var(--jp-layout-color0);
+  color: var(--jp-ui-font-color1);
+}
+
+/* Scroll container: hosts the side-by-side MergeView */
+.jp-SplitDiff-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* CodeMirror internal scroll area */
+.jp-SplitDiff-scroll .cm-scroller {
+  height: 100%;
+  overflow: auto;
+}
+
+/* Allow editor to shrink instead of expanding infinitely */
+.jp-SplitDiff-scroll .cm-editor {
+  min-height: 0;
+}
+
+.jp-SplitFileDiff-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  height: 28px;
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+  border: 1px solid var(--jp-border-color1);
+  background: var(--jp-layout-color1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.12s,
+    border-color 0.12s;
+}
+
+.jp-SplitFileDiff-btn .jp-Icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+}
+
+.jp-SplitFileDiff-btn:hover,
+.jp-SplitFileDiff-btn:focus-visible {
+  background: var(--jp-layout-color2);
+  border-color: var(--jp-border-color2);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+}
+
+.jp-SplitFileDiff-btn:focus-visible {
+  outline: 2px solid var(--jp-brand-color1);
+  outline-offset: 2px;
+}
+
+.jp-SplitFileDiff-btn:active {
+  background: var(--jp-layout-color3);
+}
+
 /* Floating unified-cell-diff control panel */
 .jp-unified-diff-floating-panel {
   position: absolute;
