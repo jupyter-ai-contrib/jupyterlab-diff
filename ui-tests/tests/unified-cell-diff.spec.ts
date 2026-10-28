@@ -209,6 +209,11 @@ test.describe('Unified Cell Diff Extension', () => {
 
     const firstCell = page.locator('.jp-Cell').first();
     await expect(firstCell).toHaveClass(/jp-unified-diff-cell/);
+
+    // The cell toolbar only renders on the active (last) cell
+    const toolbar = page.locator('.jp-Cell.jp-mod-active .jp-cell-toolbar');
+    await expect(toolbar).toBeAttached();
+    await expect(toolbar).toBeHidden();
   });
 
   test('should remove diff class from cell after resolving diff', async ({
