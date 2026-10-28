@@ -115,8 +115,8 @@ test.describe('Deleted Cell Diff', () => {
 
   test('should show accept and reject buttons', async ({ page }) => {
     await setupDeletedCell(page, 'y = 10');
-    await expect(deletedCellButton(page, 'Accept')).toBeVisible();
-    await expect(deletedCellButton(page, 'Reject')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Accept' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Reject' })).toBeVisible();
   });
 
   test('should display the deleted cell source', async ({ page }) => {
@@ -132,7 +132,7 @@ test.describe('Deleted Cell Diff', () => {
     await setupDeletedCell(page, 'z = 99');
     const countBefore = await page.notebook.getCellCount();
 
-    await deletedCellButton(page, 'Accept').click({ force: true });
+    await page.getByRole('button', { name: 'Accept' }).click({ force: true });
 
     await expect(page.locator('.jp-diff-deleted-cell')).not.toBeVisible();
     expect(await page.notebook.getCellCount()).toBe(countBefore);
@@ -146,7 +146,7 @@ test.describe('Deleted Cell Diff', () => {
     await setupDeletedCell(page, source, insertIndex);
     const countBefore = await page.notebook.getCellCount();
 
-    await deletedCellButton(page, 'Reject').click({ force: true });
+    await page.getByRole('button', { name: 'Reject' }).click({ force: true });
 
     await expect(page.locator('.jp-diff-deleted-cell')).not.toBeVisible();
     expect(await page.notebook.getCellCount()).toBe(countBefore + 1);
