@@ -37,9 +37,6 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     this._cellFooterTracker = options.cellFooterTracker;
     this.activate();
   }
-
-  private static _activeDiffCount = 0;
-  private _toolbarObserver?: MutationObserver;
   private _wasRendered = false;
 
   /**
@@ -89,8 +86,6 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     super.activate();
 
     this._cell.addClass(CELL_DIFF_CLASS);
-
-    UnifiedCellDiffManager._activeDiffCount++;
   }
 
   /**
@@ -98,10 +93,6 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
    */
   protected deactivate(): void {
     super.deactivate();
-    UnifiedCellDiffManager._activeDiffCount = Math.max(
-      0,
-      UnifiedCellDiffManager._activeDiffCount - 1
-    );
 
     this._cell.removeClass(CELL_DIFF_CLASS);
 
@@ -110,10 +101,6 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
       this._wasRendered = false;
     }
 
-    if (this._toolbarObserver) {
-      this._toolbarObserver.disconnect();
-      this._toolbarObserver = undefined;
-    }
     this._notifyDiffUpdated();
     this.dispose();
   }
@@ -127,7 +114,7 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     }
 
     if (!this.hasPendingChanges()) {
-      this.removeToolbarButtons();
+      this.deactivate();
       return;
     }
 
@@ -159,8 +146,6 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
     }
 
     this._cellFooterTracker.showFooter(cellId);
-
-    this._cell.addClass(CELL_DIFF_CLASS);
   }
 
   /**
@@ -184,8 +169,6 @@ export class UnifiedCellDiffManager extends BaseUnifiedDiffManager {
 
     // Hide the footer if no other items remain
     this._cellFooterTracker.hideFooter(cellId);
-
-    this._cell.removeClass(CELL_DIFF_CLASS);
   }
 
   private _cell: Cell;
