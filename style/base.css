@@ -78,8 +78,10 @@
   border-color: var(--jp-border-color1);
 }
 
-/* Hide cell toolbar during unified diff */
-.jp-unified-diff-cell .jp-cell-toolbar {
+/* Hide cell toolbar during unified/added/removed cell diff */
+.jp-unified-diff-cell .jp-cell-toolbar,
+.jp-diff-added-cell .jp-cell-toolbar,
+.jp-diff-deleted-cell .jp-cell-toolbar {
   display: none;
 }
 
@@ -125,6 +127,33 @@
 
 .jp-unified-diff-floating-panel .jp-merge-reject-button:hover {
   background-color: var(--jp-error-color0);
+}
+
+/* Highlight a cell that was added (action='add') */
+.jp-diff-added-cell {
+  background-color: rgb(0 128 0 / 8%);
+  border-left: 3px solid rgb(0 128 0 / 50%);
+}
+
+/* Ghost widget for a deleted cell (action='delete') */
+.jp-diff-deleted-cell {
+  background-color: rgb(220 0 0 / 6%);
+  border-left: 3px solid rgb(180 0 0 / 40%);
+  pointer-events: none;
+}
+
+.jp-diff-deleted-cell .jp-cellfooter-toolbar {
+  pointer-events: auto;
+}
+
+/* Hide the clear toolbar button on added and deleted cells */
+.jp-diff-added-cell
+  .jp-cellfooter-toolbar
+  .jp-Toolbar-item[data-jp-item-name='clear'],
+.jp-diff-deleted-cell
+  .jp-cellfooter-toolbar
+  .jp-Toolbar-item[data-jp-item-name='clear'] {
+  display: none;
 }
 
 .jp-DiffRevertButton {
