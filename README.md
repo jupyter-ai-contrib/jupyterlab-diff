@@ -89,6 +89,29 @@ app.commands.execute('jupyterlab-diff:unified-file-diff', {
 });
 ```
 
+#### Unified Diff in Any Editor
+
+An extension that shows its own editors can show a unified diff in one of them with the `UnifiedEditorDiffManager` class, which the `jupyterlab-diff` package exports. It takes a `CodeMirrorEditor`: the editor of a cell or a file, or an editor that the extension creates with `IEditorServices`. Each changed chunk gets accept and reject buttons. The manager adds no other buttons: call `acceptAll()` and `rejectAll()` from your own controls, and await `result` to know how the diff ended.
+
+```typescript
+import { UnifiedEditorDiffManager } from 'jupyterlab-diff';
+
+const diff = new UnifiedEditorDiffManager({
+  editor, // a CodeMirrorEditor
+  originalSource: 'print("Hello")',
+  newSource: 'print("Hello, World!")'
+});
+
+// From your own controls: diff.acceptAll() or diff.rejectAll()
+
+const { outcome, source } = await diff.result;
+// outcome: 'accepted', 'rejected', 'mixed' or 'disposed'
+```
+
+When the editor already holds `newSource`, the manager does not set it again. `dispose()` removes the diff and leaves the source as it is; call it before the editor is disposed, and before showing another diff in the same editor.
+
+An extension that uses the manager lists `jupyterlab-diff` in its `dependencies`. The styles of the diff come from the installed `jupyterlab_diff` Python package.
+
 ### Browser console via `window.jupyterapp`
 
 The commands can also be run from the browser console (for example during development) via the `app` object exposed as `window.jupyterapp`. The commands can be executed exactly the same way using `window.jupyterapp.commands.execute(...)`.
